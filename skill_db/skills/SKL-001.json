@@ -1,0 +1,48 @@
+{
+  "id": "SKL-001",
+  "name": "Extractor_PDF",
+  "version": "1.0.0",
+  "created_at": "2026-05-14",
+  "status": "existente",
+  "dominio": "documentos",
+  "tags": ["pdf", "ocr", "extraccion", "facturas"],
+  "descripcion": "Extrae campos clave de facturas en PDF usando OCR y LLM. Identifica proveedor, NIT, montos, impuestos y fecha de emisión.",
+  "inputs": [
+    {
+      "nombre": "archivo_pdf",
+      "tipo": "File",
+      "formato": "application/pdf",
+      "requerido": true,
+      "descripcion": "Factura en formato PDF (escaneada o digital)"
+    },
+    {
+      "nombre": "campos_a_extraer",
+      "tipo": "Array<string>",
+      "requerido": false,
+      "default": ["proveedor", "nit", "subtotal", "iva", "total", "fecha"],
+      "descripcion": "Lista de campos que se desea extraer del documento"
+    }
+  ],
+  "outputs": [
+    {
+      "nombre": "datos_extraidos",
+      "tipo": "JSON",
+      "descripcion": "Objeto con los campos extraídos del PDF"
+    },
+    {
+      "nombre": "confianza",
+      "tipo": "Float",
+      "rango": "0.0 - 1.0",
+      "descripcion": "Score de confianza del proceso de extracción"
+    }
+  ],
+  "stack": ["PyMuPDF", "Tesseract OCR", "GPT-4o-mini"],
+  "dependencias": [],
+  "siguiente_skill": "SKL-002",
+  "metricas_exito": {
+    "precision_minima": 0.90,
+    "tiempo_maximo_seg": 10
+  },
+  "esfuerzo_desarrollo": "2 días",
+  "reutilizacion": "Alta"
+}

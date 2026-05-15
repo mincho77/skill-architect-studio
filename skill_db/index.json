@@ -1,0 +1,67 @@
+{
+  "skill_db_index": {
+    "version": "1.0.0",
+    "created_at": "2026-05-14",
+    "descripcion": "Índice central del Skill DB — MVP basado en archivos JSON. Migración a PostgreSQL + pgvector planificada en fase producción.",
+    "total_skills": 5,
+    "total_flows": 1,
+    "skills": [
+      {
+        "id": "SKL-001",
+        "name": "Extractor_PDF",
+        "dominio": "documentos",
+        "status": "existente",
+        "ruta": "./skills/SKL-001.json",
+        "tags": ["pdf", "ocr", "extraccion", "facturas"]
+      },
+      {
+        "id": "SKL-002",
+        "name": "Normalizador_Datos",
+        "dominio": "documentos",
+        "status": "existente",
+        "ruta": "./skills/SKL-002.json",
+        "tags": ["normalizacion", "limpieza", "json", "datos"]
+      },
+      {
+        "id": "SKL-003",
+        "name": "Validador_Montos",
+        "dominio": "documentos",
+        "status": "existente",
+        "ruta": "./skills/SKL-003.json",
+        "tags": ["validacion", "montos", "reglas", "anomalias"]
+      },
+      {
+        "id": "SKL-004",
+        "name": "Formateador_Resumen",
+        "dominio": "reportes",
+        "status": "existente",
+        "ruta": "./skills/SKL-004.json",
+        "tags": ["formato", "markdown", "resumen", "plantilla"]
+      },
+      {
+        "id": "SKL-GAP-001",
+        "name": "Notificador_Slack",
+        "dominio": "notificaciones",
+        "status": "pendiente_desarrollo",
+        "gap": true,
+        "ruta": "./skills/SKL-GAP-001.json",
+        "tags": ["slack", "notificacion", "api", "mensajeria"]
+      }
+    ],
+    "flows": [
+      {
+        "id": "FLOW-001",
+        "name": "Procesamiento de Facturas PDF → Slack",
+        "status": "piloto",
+        "ruta": "./flows/FLOW-001.json",
+        "skills_en_orden": ["SKL-001", "SKL-002", "SKL-003", "SKL-004", "SKL-GAP-001"]
+      }
+    ],
+    "migracion": {
+      "fase_actual": "MVP — archivos JSON",
+      "fase_siguiente": "PostgreSQL + pgvector",
+      "trigger_migracion": "Catálogo supera 50 skills o se requieren múltiples usuarios simultáneos",
+      "nota": "El schema JSON actual es compatible directamente con el schema SQL de producción."
+    }
+  }
+}

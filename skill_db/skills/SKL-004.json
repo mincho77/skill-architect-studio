@@ -1,0 +1,52 @@
+{
+  "id": "SKL-004",
+  "name": "Formateador_Resumen",
+  "version": "1.0.0",
+  "created_at": "2026-05-14",
+  "status": "existente",
+  "dominio": "reportes",
+  "tags": ["formato", "markdown", "resumen", "plantilla", "slack", "email"],
+  "descripcion": "Genera un bloque de texto estructurado en Markdown a partir del JSON validado. Compatible con Slack Block Kit y plantillas de email HTML.",
+  "inputs": [
+    {
+      "nombre": "json_validado",
+      "tipo": "JSON",
+      "requerido": true,
+      "descripcion": "Resultado completo de la validación proveniente de SKL-003"
+    },
+    {
+      "nombre": "plantilla",
+      "tipo": "string",
+      "requerido": false,
+      "default": "resumen_factura_slack",
+      "opciones": ["resumen_factura_slack", "resumen_factura_email", "resumen_ejecutivo_pdf"],
+      "descripcion": "Nombre de la plantilla Jinja2 a usar"
+    },
+    {
+      "nombre": "idioma",
+      "tipo": "string",
+      "default": "es",
+      "descripcion": "Idioma del resumen generado"
+    }
+  ],
+  "outputs": [
+    {
+      "nombre": "mensaje_markdown",
+      "tipo": "string",
+      "descripcion": "Texto en Markdown listo para enviar a Slack"
+    },
+    {
+      "nombre": "resumen_ejecutivo",
+      "tipo": "string",
+      "descripcion": "Versión corta de una línea para subject o preview"
+    }
+  ],
+  "stack": ["Jinja2", "Python 3.11+", "Markdown"],
+  "dependencias": ["SKL-003"],
+  "siguiente_skill": "SKL-GAP-001",
+  "metricas_exito": {
+    "tiempo_maximo_seg": 1
+  },
+  "esfuerzo_desarrollo": "1 día",
+  "reutilizacion": "Muy Alta"
+}

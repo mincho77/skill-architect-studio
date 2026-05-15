@@ -1,0 +1,46 @@
+{
+  "id": "SKL-002",
+  "name": "Normalizador_Datos",
+  "version": "1.0.0",
+  "created_at": "2026-05-14",
+  "status": "existente",
+  "dominio": "documentos",
+  "tags": ["normalizacion", "limpieza", "json", "datos"],
+  "descripcion": "Estandariza formatos de fecha, moneda y valores numéricos del JSON extraído. Elimina inconsistencias de formato antes de la validación.",
+  "inputs": [
+    {
+      "nombre": "json_raw",
+      "tipo": "JSON",
+      "requerido": true,
+      "descripcion": "JSON crudo proveniente del Extractor_PDF (SKL-001)"
+    },
+    {
+      "nombre": "esquema_normalizacion",
+      "tipo": "JSON Schema",
+      "requerido": false,
+      "default": "schema_factura_v1",
+      "descripcion": "Esquema de tipos y formatos esperados"
+    }
+  ],
+  "outputs": [
+    {
+      "nombre": "json_limpio",
+      "tipo": "JSON",
+      "descripcion": "Datos normalizados listos para validación"
+    },
+    {
+      "nombre": "transformaciones_aplicadas",
+      "tipo": "Array<string>",
+      "descripcion": "Lista de transformaciones realizadas para trazabilidad"
+    }
+  ],
+  "stack": ["Pandas", "Pydantic", "Python 3.11+"],
+  "dependencias": ["SKL-001"],
+  "siguiente_skill": "SKL-003",
+  "metricas_exito": {
+    "campos_normalizados_minimo": 1.0,
+    "tiempo_maximo_seg": 2
+  },
+  "esfuerzo_desarrollo": "1 día",
+  "reutilizacion": "Muy Alta"
+}

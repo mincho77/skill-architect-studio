@@ -1,0 +1,77 @@
+{
+  "id": "SKL-GAP-001",
+  "name": "Notificador_Slack",
+  "version": "0.1.0",
+  "created_at": "2026-05-14",
+  "status": "pendiente_desarrollo",
+  "gap": true,
+  "dominio": "notificaciones",
+  "tags": ["slack", "notificacion", "api", "mensajeria", "webhook"],
+  "descripcion": "Envía mensajes Markdown formateados a canales o usuarios de Slack vía API. Soporta adjuntos, reintentos automáticos con backoff exponencial y confirmación de entrega.",
+  "inputs": [
+    {
+      "nombre": "mensaje_markdown",
+      "tipo": "string",
+      "requerido": true,
+      "descripcion": "Texto en Markdown generado por Formateador_Resumen (SKL-004)"
+    },
+    {
+      "nombre": "canal_slack",
+      "tipo": "string",
+      "requerido": true,
+      "descripcion": "ID o nombre del canal Slack (#finanzas, #operaciones, etc.)"
+    },
+    {
+      "nombre": "webhook_url",
+      "tipo": "string",
+      "requerido": false,
+      "descripcion": "Webhook URL alternativo si no se usa OAuth bot token"
+    },
+    {
+      "nombre": "adjuntos",
+      "tipo": "Array<File>",
+      "requerido": false,
+      "descripcion": "Archivos opcionales a adjuntar al mensaje"
+    },
+    {
+      "nombre": "reintentos_max",
+      "tipo": "integer",
+      "default": 3,
+      "descripcion": "Número máximo de reintentos en caso de fallo de entrega"
+    }
+  ],
+  "outputs": [
+    {
+      "nombre": "confirmacion",
+      "tipo": "boolean",
+      "descripcion": "True si el mensaje fue entregado exitosamente"
+    },
+    {
+      "nombre": "timestamp_mensaje",
+      "tipo": "string",
+      "descripcion": "Timestamp del mensaje en Slack (ts) para threading futuro"
+    },
+    {
+      "nombre": "log_envio",
+      "tipo": "JSON",
+      "descripcion": "Log completo: intentos realizados, errores, tiempo de respuesta"
+    }
+  ],
+  "stack": ["slack-sdk (Python)", "Python 3.11+", "httpx", "tenacity"],
+  "dependencias": ["SKL-004"],
+  "siguiente_skill": null,
+  "metricas_exito": {
+    "tasa_entrega_minima": 0.99,
+    "tiempo_maximo_seg": 5,
+    "reintentos_antes_de_fallo": 3
+  },
+  "esfuerzo_desarrollo": "2 días",
+  "reutilizacion": "Alta",
+  "criterios_aceptacion": [
+    "Envía correctamente a canales públicos y privados",
+    "Maneja rate limiting de Slack (HTTP 429) con backoff exponencial",
+    "Registra log detallado de cada intento de envío",
+    "Falla explícita con mensaje de error claro al superar reintentos",
+    "Compatible con Slack Block Kit para mensajes enriquecidos"
+  ]
+}

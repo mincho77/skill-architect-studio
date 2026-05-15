@@ -1,0 +1,284 @@
+{
+  "skill_db": {
+    "version": "1.0.0",
+    "created_at": "2026-05-14",
+    "flow": {
+      "id": "FLOW-001",
+      "name": "Procesamiento de Facturas PDF → Slack",
+      "description": "Flujo completo que extrae, normaliza, valida y notifica vía Slack el resultado del procesamiento de facturas en PDF.",
+      "owner": "Arquitectura de Skills — Suramericana",
+      "status": "piloto",
+      "eficiencia_ia": "80%",
+      "tiempo_ahorrado_hrs": 18,
+      "skills_reutilizados": 4,
+      "skills_a_desarrollar": 1
+    },
+    "skills": [
+      {
+        "id": "SKL-001",
+        "name": "Extractor_PDF",
+        "version": "1.0.0",
+        "status": "existente",
+        "dominio": "documentos",
+        "descripcion": "Extrae campos clave de facturas en PDF usando OCR y LLM. Identifica proveedor, NIT, montos, impuestos y fecha de emisión.",
+        "inputs": [
+          {
+            "nombre": "archivo_pdf",
+            "tipo": "File",
+            "formato": "application/pdf",
+            "requerido": true,
+            "descripcion": "Factura en formato PDF (escaneada o digital)"
+          },
+          {
+            "nombre": "campos_a_extraer",
+            "tipo": "Array<string>",
+            "requerido": false,
+            "default": ["proveedor", "nit", "subtotal", "iva", "total", "fecha"],
+            "descripcion": "Lista de campos que se desea extraer del documento"
+          }
+        ],
+        "outputs": [
+          {
+            "nombre": "datos_extraidos",
+            "tipo": "JSON",
+            "descripcion": "Objeto con los campos extraídos del PDF"
+          },
+          {
+            "nombre": "confianza",
+            "tipo": "Float",
+            "rango": "0.0 - 1.0",
+            "descripcion": "Score de confianza del proceso de extracción"
+          }
+        ],
+        "stack": ["PyMuPDF", "Tesseract OCR", "GPT-4o-mini"],
+        "dependencias": [],
+        "siguiente_skill": "SKL-002",
+        "metricas_exito": {
+          "precision_minima": 0.90,
+          "tiempo_maximo_seg": 10
+        },
+        "esfuerzo_desarrollo": "2 días",
+        "reutilizacion": "Alta"
+      },
+      {
+        "id": "SKL-002",
+        "name": "Normalizador_Datos",
+        "version": "1.0.0",
+        "status": "existente",
+        "dominio": "documentos",
+        "descripcion": "Estandariza formatos de fecha, moneda y valores numéricos del JSON extraído. Elimina inconsistencias de formato antes de la validación.",
+        "inputs": [
+          {
+            "nombre": "json_raw",
+            "tipo": "JSON",
+            "requerido": true,
+            "descripcion": "JSON crudo proveniente del Extractor_PDF"
+          },
+          {
+            "nombre": "esquema_normalizacion",
+            "tipo": "JSON Schema",
+            "requerido": false,
+            "default": "schema_factura_v1",
+            "descripcion": "Esquema de tipos y formatos esperados"
+          }
+        ],
+        "outputs": [
+          {
+            "nombre": "json_limpio",
+            "tipo": "JSON",
+            "descripcion": "Datos normalizados listos para validación"
+          },
+          {
+            "nombre": "transformaciones_aplicadas",
+            "tipo": "Array<string>",
+            "descripcion": "Lista de transformaciones realizadas para trazabilidad"
+          }
+        ],
+        "stack": ["Pandas", "Pydantic", "Python 3.11+"],
+        "dependencias": ["SKL-001"],
+        "siguiente_skill": "SKL-003",
+        "metricas_exito": {
+          "campos_normalizados_minimo": 1.0,
+          "tiempo_maximo_seg": 2
+        },
+        "esfuerzo_desarrollo": "1 día",
+        "reutilizacion": "Muy Alta"
+      },
+      {
+        "id": "SKL-003",
+        "name": "Validador_Montos",
+        "version": "1.0.0",
+        "status": "existente",
+        "dominio": "documentos",
+        "descripcion": "Verifica la consistencia matemática de la factura: subtotal + IVA = total. Aplica reglas de negocio configurables y devuelve anomalías detectadas.",
+        "inputs": [
+          {
+            "nombre": "json_limpio",
+            "tipo": "JSON",
+            "requerido": true,
+            "descripcion": "Datos normalizados de la factura"
+          },
+          {
+            "nombre": "reglas_negocio",
+            "tipo": "YAML | JSON",
+            "requerido": false,
+            "default": "reglas_facturas_suramericana_v1.yaml",
+            "descripcion": "Archivo de reglas configurables: tolerancias, rangos permitidos, categorías"
+          }
+        ],
+        "outputs": [
+          {
+            "nombre": "json_validado",
+            "tipo": "JSON",
+            "descripcion": "JSON con campo 'valido: true/false' y resultado por regla"
+          },
+          {
+            "nombre": "anomalias",
+            "tipo": "Array<Anomalia>",
+            "descripcion": "Lista de anomalías detectadas con código, descripción y severidad"
+          },
+          {
+            "nombre": "resumen_validacion",
+            "tipo": "JSON",
+            "descripcion": "Totales: reglas_pasadas, reglas_fallidas, score_validacion"
+          }
+        ],
+        "stack": ["Python 3.11+", "Pydantic", "PyYAML"],
+        "dependencias": ["SKL-002"],
+        "siguiente_skill": "SKL-004",
+        "metricas_exito": {
+          "cobertura_reglas": 1.0,
+          "tiempo_maximo_seg": 3,
+          "falsos_positivos_max": 0.02
+        },
+        "esfuerzo_desarrollo": "3 días",
+        "reutilizacion": "Alta"
+      },
+      {
+        "id": "SKL-004",
+        "name": "Formateador_Resumen",
+        "version": "1.0.0",
+        "status": "existente",
+        "dominio": "reportes",
+        "descripcion": "Genera un bloque de texto estructurado en Markdown a partir del JSON validado. Compatible con Slack Block Kit y email HTML.",
+        "inputs": [
+          {
+            "nombre": "json_validado",
+            "tipo": "JSON",
+            "requerido": true,
+            "descripcion": "Resultado completo de la validación"
+          },
+          {
+            "nombre": "plantilla",
+            "tipo": "string",
+            "requerido": false,
+            "default": "resumen_factura_slack",
+            "opciones": ["resumen_factura_slack", "resumen_factura_email", "resumen_ejecutivo_pdf"],
+            "descripcion": "Nombre de la plantilla Jinja2 a usar"
+          },
+          {
+            "nombre": "idioma",
+            "tipo": "string",
+            "default": "es",
+            "descripcion": "Idioma del resumen generado"
+          }
+        ],
+        "outputs": [
+          {
+            "nombre": "mensaje_markdown",
+            "tipo": "string",
+            "descripcion": "Texto en Markdown listo para enviar a Slack"
+          },
+          {
+            "nombre": "resumen_ejecutivo",
+            "tipo": "string",
+            "descripcion": "Versión corta de una línea para subject/preview"
+          }
+        ],
+        "stack": ["Jinja2", "Python 3.11+", "Markdown"],
+        "dependencias": ["SKL-003"],
+        "siguiente_skill": "SKL-GAP-001",
+        "metricas_exito": {
+          "tiempo_maximo_seg": 1
+        },
+        "esfuerzo_desarrollo": "1 día",
+        "reutilizacion": "Muy Alta"
+      },
+      {
+        "id": "SKL-GAP-001",
+        "name": "Notificador_Slack",
+        "version": "0.1.0",
+        "status": "pendiente_desarrollo",
+        "gap": true,
+        "dominio": "notificaciones",
+        "descripcion": "Envía mensajes Markdown formateados a canales o usuarios de Slack vía API. Soporta adjuntos, reintentos automáticos y confirmación de entrega.",
+        "inputs": [
+          {
+            "nombre": "mensaje_markdown",
+            "tipo": "string",
+            "requerido": true,
+            "descripcion": "Texto en Markdown generado por Formateador_Resumen"
+          },
+          {
+            "nombre": "canal_slack",
+            "tipo": "string",
+            "requerido": true,
+            "descripcion": "ID o nombre del canal Slack (#finanzas, #operaciones, etc.)"
+          },
+          {
+            "nombre": "webhook_url",
+            "tipo": "string",
+            "requerido": false,
+            "descripcion": "Webhook URL alternativo (si no se usa OAuth bot token)"
+          },
+          {
+            "nombre": "adjuntos",
+            "tipo": "Array<File>",
+            "requerido": false,
+            "descripcion": "Archivos opcionales a adjuntar al mensaje"
+          },
+          {
+            "nombre": "reintentos_max",
+            "tipo": "integer",
+            "default": 3,
+            "descripcion": "Número máximo de reintentos en caso de fallo"
+          }
+        ],
+        "outputs": [
+          {
+            "nombre": "confirmacion",
+            "tipo": "boolean",
+            "descripcion": "True si el mensaje fue entregado exitosamente"
+          },
+          {
+            "nombre": "timestamp_mensaje",
+            "tipo": "string",
+            "descripcion": "Timestamp del mensaje en Slack (ts) para threading futuro"
+          },
+          {
+            "nombre": "log_envio",
+            "tipo": "JSON",
+            "descripcion": "Log completo: intentos, errores, tiempo de respuesta"
+          }
+        ],
+        "stack": ["Slack Web API (slack-sdk)", "Python 3.11+", "httpx", "tenacity (retry)"],
+        "dependencias": ["SKL-004"],
+        "siguiente_skill": null,
+        "metricas_exito": {
+          "tasa_entrega_minima": 0.99,
+          "tiempo_maximo_seg": 5,
+          "reintentos_antes_de_fallo": 3
+        },
+        "esfuerzo_desarrollo": "2 días",
+        "reutilizacion": "Alta",
+        "criterios_aceptacion": [
+          "Envía correctamente a canales públicos y privados",
+          "Maneja rate limiting de Slack (429) con backoff exponencial",
+          "Registra log de cada intento de envío",
+          "Falla explícita con mensaje de error claro si supera reintentos",
+          "Compatible con Slack Block Kit para mensajes enriquecidos"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "id": "SKL-003",
+  "name": "Validador_Montos",
+  "version": "1.0.0",
+  "created_at": "2026-05-14",
+  "status": "existente",
+  "dominio": "documentos",
+  "tags": ["validacion", "montos", "reglas", "anomalias"],
+  "descripcion": "Verifica la consistencia matemática de la factura: subtotal + IVA = total. Aplica reglas de negocio configurables y devuelve anomalías detectadas.",
+  "inputs": [
+    {
+      "nombre": "json_limpio",
+      "tipo": "JSON",
+      "requerido": true,
+      "descripcion": "Datos normalizados de la factura provenientes de SKL-002"
+    },
+    {
+      "nombre": "reglas_negocio",
+      "tipo": "YAML | JSON",
+      "requerido": false,
+      "default": "reglas_facturas_suramericana_v1.yaml",
+      "descripcion": "Archivo de reglas configurables: tolerancias, rangos permitidos, categorías"
+    }
+  ],
+  "outputs": [
+    {
+      "nombre": "json_validado",
+      "tipo": "JSON",
+      "descripcion": "JSON con campo 'valido: true/false' y resultado por regla"
+    },
+    {
+      "nombre": "anomalias",
+      "tipo": "Array<Anomalia>",
+      "descripcion": "Lista de anomalías detectadas con código, descripción y severidad"
+    },
+    {
+      "nombre": "resumen_validacion",
+      "tipo": "JSON",
+      "descripcion": "Totales: reglas_pasadas, reglas_fallidas, score_validacion"
+    }
+  ],
+  "stack": ["Python 3.11+", "Pydantic", "PyYAML"],
+  "dependencias": ["SKL-002"],
+  "siguiente_skill": "SKL-004",
+  "metricas_exito": {
+    "cobertura_reglas": 1.0,
+    "tiempo_maximo_seg": 3,
+    "falsos_positivos_max": 0.02
+  },
+  "esfuerzo_desarrollo": "3 días",
+  "reutilizacion": "Alta"
+}
