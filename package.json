@@ -1,0 +1,9 @@
+{
+  "name": "skill-architect-studio",
+  "version": "2.0.0",
+  "type": "module",
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "nanoid": "^5.1.11"
+  }
+}

@@ -1,6 +1,6 @@
-export { topologicalLevels } from './topology';
+export { topologicalLevels, hasCycle } from './topology';
 export { resolveInputs } from './resolveInputs';
 export { executeSkill } from './executeSkill';
-export { runFlow } from './runFlow';
-export { validateFlow } from './validateFlow';
-export { parseEnvelope, redactSecrets } from './envelope';
+export { runFlow, cancelExecution } from './runFlow';
+export { validateFlow, validateFlowQuick } from './validateFlow';
+export { parseEnvelope, redactSecrets, validateEnvelopeContract } from './envelope';
