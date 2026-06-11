@@ -1,22 +1,13 @@
 {
   "id": "FLOW-001",
   "name": "Procesamiento de Facturas PDF → Slack",
-  "version": "1.0.0",
-  "created_at": "2026-05-14",
-  "owner": "Arquitectura de Skills — Suramericana",
-  "status": "piloto",
-  "descripcion": "Flujo completo que extrae, normaliza, valida y notifica vía Slack el resultado del procesamiento de facturas en PDF.",
-  "metricas": {
-    "eficiencia_ia": "80%",
-    "tiempo_ahorrado_hrs": 18,
-    "skills_reutilizados": 4,
-    "skills_a_desarrollar": 1
-  },
-  "pipeline": [
-    { "orden": 1, "skill_id": "SKL-001",     "nombre": "Extractor_PDF" },
-    { "orden": 2, "skill_id": "SKL-002",     "nombre": "Normalizador_Datos" },
-    { "orden": 3, "skill_id": "SKL-003",     "nombre": "Validador_Montos" },
-    { "orden": 4, "skill_id": "SKL-004",     "nombre": "Formateador_Resumen" },
-    { "orden": 5, "skill_id": "SKL-GAP-001", "nombre": "Notificador_Slack", "gap": true }
-  ]
+  "schema_version": "2.0",
+  "rev": 1,
+  "nodes": [],
+  "connections": [],
+  "flow_inputs": [],
+  "flow_outputs": [],
+  "created_at": "2026-06-11T14:59:14.285Z",
+  "updated_at": "2026-06-11T14:59:14.285Z",
+  "migrated_from_v1": true
 }

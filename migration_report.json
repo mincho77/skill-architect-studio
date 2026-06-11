@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-06-11T14:59:14.263Z",
+  "skills_migrados": [
+    "SKL-001",
+    "SKL-002",
+    "SKL-003",
+    "SKL-004",
+    "SKL-GAP-001"
+  ],
+  "flows_migrados": [
+    "FLOW-001"
+  ],
+  "conexiones_inferidas": [],
+  "errores": []
+}
