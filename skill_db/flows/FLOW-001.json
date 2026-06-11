@@ -3,11 +3,73 @@
   "name": "Procesamiento de Facturas PDF → Slack",
   "schema_version": "2.0",
   "rev": 1,
-  "nodes": [],
-  "connections": [],
+  "nodes": [
+    {
+      "instance_id": "n1-abc123",
+      "skill_id": "SKL-001",
+      "skill_version": "1.0.0",
+      "label": "Extractor_PDF",
+      "position": { "x": 100, "y": 200 }
+    },
+    {
+      "instance_id": "n2-def456",
+      "skill_id": "SKL-002",
+      "skill_version": "1.0.0",
+      "label": "Normalizador_Datos",
+      "position": { "x": 420, "y": 200 }
+    },
+    {
+      "instance_id": "n3-ghi789",
+      "skill_id": "SKL-003",
+      "skill_version": "1.0.0",
+      "label": "Validador_Montos",
+      "position": { "x": 740, "y": 200 }
+    },
+    {
+      "instance_id": "n4-jkl012",
+      "skill_id": "SKL-004",
+      "skill_version": "1.0.0",
+      "label": "Formateador_Resumen",
+      "position": { "x": 1060, "y": 200 }
+    },
+    {
+      "instance_id": "n5-mno345",
+      "skill_id": "SKL-GAP-001",
+      "skill_version": "0.1.0",
+      "label": "Notificador_Slack",
+      "position": { "x": 1380, "y": 200 }
+    }
+  ],
+  "connections": [
+    {
+      "id": "n1-abc123.salida->n2-def456.entrada",
+      "from": { "node": "n1-abc123", "port": "salida" },
+      "to": { "node": "n2-def456", "port": "entrada" }
+    },
+    {
+      "id": "n2-def456.salida->n3-ghi789.entrada",
+      "from": { "node": "n2-def456", "port": "salida" },
+      "to": { "node": "n3-ghi789", "port": "entrada" }
+    },
+    {
+      "id": "n3-ghi789.salida->n4-jkl012.entrada",
+      "from": { "node": "n3-ghi789", "port": "salida" },
+      "to": { "node": "n4-jkl012", "port": "entrada" }
+    },
+    {
+      "id": "n4-jkl012.salida->n5-mno345.entrada",
+      "from": { "node": "n4-jkl012", "port": "salida" },
+      "to": { "node": "n5-mno345", "port": "entrada" }
+    }
+  ],
   "flow_inputs": [],
-  "flow_outputs": [],
+  "flow_outputs": [
+    {
+      "expone": { "node": "n5-mno345", "port": "salida" },
+      "como": "resultado_slack"
+    }
+  ],
   "created_at": "2026-06-11T14:59:14.285Z",
-  "updated_at": "2026-06-11T14:59:14.285Z",
+  "updated_at": "2026-06-11T15:30:00.000Z",
   "migrated_from_v1": true
 }
