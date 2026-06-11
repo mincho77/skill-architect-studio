@@ -28,3 +28,12 @@ logs/
 # Secrets
 *.env
 secrets.json
+
+# FASE 0+ — secretos y uploads NO deben versionarse
+data/secrets.json
+data/uploads/
+skill_db_backup_v1_*
+
+# Archivos temporales de IA
+DECISIONES_EJECUTOR.md
+FASE_*.md

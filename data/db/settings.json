@@ -1,0 +1,8 @@
+{
+  "retencion_ejecuciones_dias": 30,
+  "max_ejecuciones_por_flow": 50,
+  "retencion_uploads_dias": 7,
+  "timeout_flow_segundos": 1800,
+  "upload_max_mb": 200,
+  "allow_server_paths": false
+}
