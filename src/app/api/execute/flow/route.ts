@@ -1,16 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const MOCK_OUTPUTS: Record<string, (input: any) => any> = {
-  'text-to-workflow': (input: string) => ({
-    workflow: {
-      tipo: 'workflow',
-      pasos: [
-        { id: 1, titulo: 'Inicio', descripcion: input },
-        { id: 2, titulo: 'Procesamiento', descripcion: 'Procesar datos' },
-        { id: 3, titulo: 'Fin', descripcion: 'Completado' },
-      ],
-    },
-  }),
+  'text-to-workflow': (input: string) => {
+    const text = (input || '').trim();
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim());
+    const pasos = sentences.slice(0, 3).map((sent, idx) => ({
+      id: idx + 1,
+      titulo: `Paso ${idx + 1}`,
+      descripcion: sent.trim().substring(0, 50),
+    }));
+    if (pasos.length === 0) {
+      pasos.push({ id: 1, titulo: 'Entrada', descripcion: text.substring(0, 50) });
+    }
+    return {
+      workflow: {
+        tipo: 'workflow',
+        pasos,
+      },
+    };
+  },
   'workflow-to-mermaid': (input: any) => {
     const steps = input.workflow?.pasos || [];
     const mermaidLines = ['graph TD'];
