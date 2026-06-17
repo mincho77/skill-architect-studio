@@ -17,10 +17,20 @@ export default function Sidebar() {
   return (
     <aside className="w-16 bg-gray-900 border-r border-gray-800 flex flex-col items-center py-4 gap-2 shrink-0">
       <div
-        className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mb-4 cursor-pointer hover:bg-purple-500 transition-colors"
+        className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 cursor-pointer transition-all hover:scale-110"
+        style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #2563eb 100%)', boxShadow: '0 0 16px #7c3aed88' }}
         onClick={() => router.push('/')}
       >
-        <span className="text-white font-black text-sm">SS</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="5" cy="12" r="2.5" fill="#e0e7ff"/>
+          <circle cx="12" cy="5" r="2.5" fill="#e0e7ff"/>
+          <circle cx="19" cy="12" r="2.5" fill="#e0e7ff"/>
+          <circle cx="12" cy="19" r="2.5" fill="#e0e7ff"/>
+          <line x1="7.5" y1="12" x2="16.5" y2="12" stroke="#818cf8" strokeWidth="1.5"/>
+          <line x1="12" y1="7.5" x2="12" y2="16.5" stroke="#818cf8" strokeWidth="1.5"/>
+          <line x1="7" y1="7" x2="17" y2="17" stroke="#818cf8" strokeWidth="1" strokeDasharray="2 2"/>
+          <circle cx="12" cy="12" r="2" fill="#a78bfa"/>
+        </svg>
       </div>
       {NAV_ITEMS.map((item) => {
         const active = pathname === item.href;
