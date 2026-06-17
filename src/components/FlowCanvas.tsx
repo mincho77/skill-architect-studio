@@ -316,12 +316,12 @@ export default function FlowCanvas() {
                     {step.output && (
                       <div>
                         <div className="text-xs text-blue-500 font-bold mb-1">📤 Output:</div>
-                        {(step.output.png || step.output.url) && (
-                          <div className="mb-3 max-h-48 overflow-auto rounded-lg border border-gray-700 p-2">
+                        {typeof step.output === 'object' && (step.output.png || step.output.url) && (
+                          <div className="mb-3 rounded-lg border border-gray-700 p-2 bg-gray-800">
                             <img
-                              src={step.output.png || step.output.url}
+                              src={step.output.png?.startsWith('data:') ? step.output.png : step.output.url}
                               alt="Output"
-                              className="max-w-full h-auto"
+                              style={{ maxWidth: '100%', height: 'auto', maxHeight: '200px' }}
                             />
                           </div>
                         )}
