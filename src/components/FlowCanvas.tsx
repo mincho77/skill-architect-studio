@@ -277,12 +277,9 @@ export default function FlowCanvas() {
               })()}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Panel Derecho - Flujo de Datos */}
-      {execution && (
-        <div className="w-1/3 bg-gray-900 border-l border-gray-800 flex flex-col overflow-hidden shrink-0 min-w-96">
+        {/* Panel Derecho - Flujo de Datos */}
+        {execution && (
+        <div className="absolute top-0 right-0 h-full w-96 bg-gray-900/95 border-l border-gray-800 flex flex-col overflow-hidden z-20 shadow-2xl">
           <div className="px-5 py-4 border-b border-gray-800 flex items-center gap-3 shrink-0">
             <span className="font-bold text-white text-sm">Flujo de Datos</span>
             {execution.status === 'success'
@@ -407,7 +404,9 @@ export default function FlowCanvas() {
             ))}
           </div>
         </div>
-      )}
+        )}
+        </div>
+      </div>
     </div>
   );
 }
