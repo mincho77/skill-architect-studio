@@ -104,7 +104,7 @@ export default function FlowCanvas() {
 
     const orderedNodes = [...nodes];
     const steps: any[] = [];
-    let currentData: any = inputs;
+    let currentData: any = inputs.texto || '';
 
     for (let i = 0; i < orderedNodes.length; i++) {
       const node = orderedNodes[i];
