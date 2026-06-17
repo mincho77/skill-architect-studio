@@ -166,8 +166,12 @@ export default function FlowCanvas() {
               <Edit2 size={13} /> Inputs
             </button>
             {execution && (
-              <span className={`text-xs px-3 py-1 rounded-full font-bold border ${execution.status === 'success' ? 'bg-green-900/30 border-green-700 text-green-400' : 'bg-red-900/30 border-red-700 text-red-400'}`}>
-                {execution.id} · {execution.status}
+              <span
+                onClick={() => setExecution(null)}
+                className={`cursor-pointer text-xs px-3 py-1 rounded-full font-bold border ${execution.status === 'success' ? 'bg-green-900/30 border-green-700 text-green-400 hover:border-red-700 hover:text-red-400' : 'bg-red-900/30 border-red-700 text-red-400'}`}
+                title="Click para cerrar resultados"
+              >
+                {execution.id} · {execution.status} ✕
               </span>
             )}
             <button
@@ -283,8 +287,14 @@ export default function FlowCanvas() {
           <div className="px-5 py-4 border-b border-gray-800 flex items-center gap-3 shrink-0">
             <span className="font-bold text-white text-sm">Flujo de Datos</span>
             {execution.status === 'success'
-              ? <CheckCircle size={14} className="text-green-400 ml-auto" />
-              : <AlertCircle size={14} className="text-red-400 ml-auto" />}
+              ? <CheckCircle size={14} className="text-green-400" />
+              : <AlertCircle size={14} className="text-red-400" />}
+            <button
+              onClick={() => { setExecution(null); setExpandedStep(null); }}
+              className="ml-auto text-gray-500 hover:text-white transition-colors"
+            >
+              <X size={16} />
+            </button>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
