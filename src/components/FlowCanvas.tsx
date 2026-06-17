@@ -16,10 +16,11 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import SkillNode from './SkillNode';
+import InputNode from './InputNode';
 import { EnhancedInputPanel } from './EnhancedInputPanel';
 import { Play, Loader, CheckCircle, AlertCircle, ChevronDown, ChevronRight, Edit2, X } from 'lucide-react';
 
-const nodeTypes = { skillNode: SkillNode };
+const nodeTypes = { skillNode: SkillNode, inputNode: InputNode };
 
 const SKILL_DEFS: Record<string, any> = {
   'text-to-workflow': {
@@ -38,6 +39,14 @@ const SKILL_DEFS: Record<string, any> = {
 
 const INITIAL_NODES: Node[] = [
   {
+    id: '0', type: 'inputNode', position: { x: -150, y: 150 },
+    data: {
+      inputs: [
+        { nombre: 'texto', tipo: 'String' },
+      ],
+    },
+  },
+  {
     id: '1', type: 'skillNode', position: { x: 60, y: 180 },
     data: { label: 'Text → Workflow', skillId: 'text-to-workflow', status: 'idle', ...SKILL_DEFS['text-to-workflow'] },
   },
@@ -52,6 +61,7 @@ const INITIAL_NODES: Node[] = [
 ];
 
 const INITIAL_EDGES: Edge[] = [
+  { id: 'e0-1', source: '0', sourceHandle: 'input-texto', target: '1', targetHandle: 'in-texto', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
   { id: 'e1-2', source: '1', sourceHandle: 'out-workflow', target: '2', targetHandle: 'in-workflow', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#9333ea', strokeWidth: 2 } },
   { id: 'e2-3', source: '2', sourceHandle: 'out-mermaid', target: '3', targetHandle: 'in-mermaid', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#9333ea', strokeWidth: 2 } },
 ];
