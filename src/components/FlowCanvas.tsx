@@ -337,6 +337,64 @@ export default function FlowCanvas() {
                           </div>
                         ) : null}
                         <pre className="text-xs font-mono text-blue-300 max-h-28 overflow-auto">{JSON.stringify(step.output, null, 2)}</pre>
+                        <div className="flex gap-2 mt-2 flex-wrap">
+                          {step.output?.png && (
+                            <button
+                              onClick={() => {
+                                const link = document.createElement('a');
+                                link.href = step.output.png;
+                                link.download = `output-${step.skillName}-${idx}.png`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                              }}
+                              className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                            >
+                              ⬇ PNG
+                            </button>
+                          )}
+                          {step.output?.url && (
+                            <button
+                              onClick={() => {
+                                const link = document.createElement('a');
+                                link.href = step.output.url;
+                                link.download = `output-${step.skillName}-${idx}.png`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                              }}
+                              className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                            >
+                              ⬇ IMG
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              const json = JSON.stringify(step.output, null, 2);
+                              const blob = new Blob([json], { type: 'application/json' });
+                              const url = URL.createObjectURL(blob);
+                              const link = document.createElement('a');
+                              link.href = url;
+                              link.download = `output-${step.skillName}-${idx}.json`;
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              URL.revokeObjectURL(url);
+                            }}
+                            className="text-xs px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded"
+                          >
+                            ⬇ JSON
+                          </button>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(JSON.stringify(step.output, null, 2));
+                              alert('Copiado al clipboard');
+                            }}
+                            className="text-xs px-2 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded"
+                          >
+                            📋 Copy
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
