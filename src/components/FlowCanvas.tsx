@@ -316,15 +316,26 @@ export default function FlowCanvas() {
                     {step.output && (
                       <div>
                         <div className="text-xs text-blue-500 font-bold mb-1">📤 Output:</div>
-                        {typeof step.output === 'object' && (step.output.png || step.output.url) && (
-                          <div className="mb-3 rounded-lg border border-gray-700 p-2 bg-gray-800">
+                        {step.output?.png ? (
+                          <div className="mb-3 rounded-lg border border-gray-700 p-2 bg-gray-800 flex justify-center">
                             <img
-                              src={step.output.png?.startsWith('data:') ? step.output.png : step.output.url}
+                              src={step.output.png}
                               alt="Output"
                               style={{ maxWidth: '100%', height: 'auto', maxHeight: '200px' }}
+                              onError={(e) => console.error('Image load error:', e)}
                             />
                           </div>
-                        )}
+                        ) : null}
+                        {step.output?.url ? (
+                          <div className="mb-3 rounded-lg border border-gray-700 p-2 bg-gray-800 flex justify-center">
+                            <img
+                              src={step.output.url}
+                              alt="Output"
+                              style={{ maxWidth: '100%', height: 'auto', maxHeight: '200px' }}
+                              onError={(e) => console.error('Image load error:', e)}
+                            />
+                          </div>
+                        ) : null}
                         <pre className="text-xs font-mono text-blue-300 max-h-28 overflow-auto">{JSON.stringify(step.output, null, 2)}</pre>
                       </div>
                     )}
