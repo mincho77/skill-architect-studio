@@ -53,7 +53,7 @@ export const EnhancedInputPanel: React.FC<EnhancedInputPanelProps> = ({
           className="text-[10px] text-slate-400 hover:text-slate-300 transition-colors"
           title="Colapsar todo"
         >
-          ⊖
+          [-]
         </button>
       </div>
 
@@ -111,11 +111,11 @@ export const EnhancedInputPanel: React.FC<EnhancedInputPanelProps> = ({
               >
                 {expandedTexts.has(input.nombre) ? (
                   <>
-                    <span>⬆ Colapsar</span>
+                    <span>^ Collapse</span>
                   </>
                 ) : (
                   <>
-                    <span>⬇ Expandir</span>
+                    <span>v Expand</span>
                     <span className="text-slate-500">
                       ({(input.valor || '').split('\n').length} líneas)
                     </span>
@@ -134,7 +134,7 @@ export const EnhancedInputPanel: React.FC<EnhancedInputPanelProps> = ({
           disabled={isExecuting}
           className="mt-4 w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 text-sm font-bold text-white rounded-lg shadow-lg shadow-blue-500/20 transition-all"
         >
-          {isExecuting ? '⏳ Ejecutando...' : '▶ Ejecutar con estos inputs'}
+          {isExecuting ? 'Running...' : 'Execute'}
         </button>
       )}
     </div>

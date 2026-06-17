@@ -63,7 +63,7 @@ export default function SkillNode({ data, selected }: { data: any; selected: boo
         </div>
         <div style={{ color: '#6b7280', fontSize: 10, marginTop: 2 }}>{data.skillId}</div>
         {data.duration && (
-          <div style={{ color: '#22c55e', fontSize: 10 }}>✓ {data.duration}ms</div>
+          <div style={{ color: '#22c55e', fontSize: 10 }}>OK {data.duration}ms</div>
         )}
         {status === 'running' && (
           <div style={{ color: '#60a5fa', fontSize: 10 }}>⟳ ejecutando...</div>

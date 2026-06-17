@@ -171,7 +171,7 @@ export default function FlowCanvas() {
                 className={`cursor-pointer text-xs px-3 py-1 rounded-full font-bold border ${execution.status === 'success' ? 'bg-green-900/30 border-green-700 text-green-400 hover:border-red-700 hover:text-red-400' : 'bg-red-900/30 border-red-700 text-red-400'}`}
                 title="Click para cerrar resultados"
               >
-                {execution.id} · {execution.status} ✕
+                {execution.id} · {execution.status}
               </span>
             )}
             <button
@@ -264,13 +264,13 @@ export default function FlowCanvas() {
                   <div>
                     <div className="text-xs font-bold text-gray-400 mb-2">ÚLTIMA EJECUCIÓN</div>
                     <div className="mb-3">
-                      <div className="text-xs text-green-500 font-bold mb-1">📥 Input:</div>
+                      <div className="text-xs text-green-500 font-bold mb-1">Input:</div>
                       <pre className="text-xs font-mono text-green-300 bg-gray-950 rounded p-2 max-h-28 overflow-auto">
                         {JSON.stringify(step.input, null, 2)}
                       </pre>
                     </div>
                     <div>
-                      <div className="text-xs text-blue-500 font-bold mb-1">📤 Output:</div>
+                      <div className="text-xs text-blue-500 font-bold mb-1">Output:</div>
                       <pre className="text-xs font-mono text-blue-300 bg-gray-950 rounded p-2 max-h-28 overflow-auto">
                         {JSON.stringify(step.output, null, 2)}
                       </pre>
@@ -317,12 +317,12 @@ export default function FlowCanvas() {
                 {expandedStep === idx && (
                   <div className="mt-1 bg-gray-950 rounded-lg p-3 border border-gray-800 space-y-3">
                     <div>
-                      <div className="text-xs text-green-500 font-bold mb-1">📥 Input:</div>
+                      <div className="text-xs text-green-500 font-bold mb-1">Input:</div>
                       <pre className="text-xs font-mono text-green-300 max-h-48 overflow-auto">{JSON.stringify(step.input, null, 2)}</pre>
                     </div>
                     {step.output && (
                       <div>
-                        <div className="text-xs text-blue-500 font-bold mb-1">📤 Output:</div>
+                        <div className="text-xs text-blue-500 font-bold mb-1">Output:</div>
                         {step.output?.png ? (
                           <div className="mb-3 rounded-lg border border-gray-700 bg-gray-800 overflow-hidden" style={{ width: '100%' }}>
                             <img
@@ -357,7 +357,7 @@ export default function FlowCanvas() {
                               }}
                               className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
                             >
-                              ⬇ PNG
+                              PNG
                             </button>
                           )}
                           {step.output?.url && (
@@ -372,7 +372,7 @@ export default function FlowCanvas() {
                               }}
                               className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
                             >
-                              ⬇ IMG
+                              IMG
                             </button>
                           )}
                           <button
@@ -390,7 +390,7 @@ export default function FlowCanvas() {
                             }}
                             className="text-xs px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded"
                           >
-                            ⬇ JSON
+                            JSON
                           </button>
                           <button
                             onClick={() => {
@@ -399,7 +399,7 @@ export default function FlowCanvas() {
                             }}
                             className="text-xs px-2 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded"
                           >
-                            📋 Copy
+                            Copy
                           </button>
                         </div>
                       </div>

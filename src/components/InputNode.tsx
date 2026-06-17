@@ -33,7 +33,7 @@ export default function InputNode({ data }: { data: any }) {
           borderBottom: '1px solid #374151',
         }}
       >
-        <div style={{ color: '#fff', fontWeight: 800, fontSize: 13 }}>📥 Inputs</div>
+        <div style={{ color: '#fff', fontWeight: 800, fontSize: 13 }}>Inputs</div>
       </div>
 
       {/* Outputs */}
