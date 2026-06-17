@@ -7,7 +7,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Handle, Position } from '@xyflow/react';
 
 interface InputDefinition {
   nombre: string;
@@ -64,27 +63,8 @@ export const EnhancedInputPanel: React.FC<EnhancedInputPanelProps> = ({
             key={input.nombre}
             className="relative bg-blue-900/20 border border-blue-600/40 rounded-lg p-3 hover:border-blue-500/60 transition-all group"
           >
-            {/* Punto de conexión draggable */}
-            <Handle
-              type="source"
-              position={Position.Right}
-              id={`input-${input.nombre}`}
-              style={{
-                background: '#3B82F6',
-                width: 10,
-                height: 10,
-                border: '2px solid white',
-                boxShadow: '0 0 8px rgba(59, 130, 246, 0.6)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.3)';
-                e.currentTarget.style.boxShadow = '0 0 12px rgba(59, 130, 246, 0.8)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 0 8px rgba(59, 130, 246, 0.6)';
-              }}
-            />
+            {/* Punto de conexión visual */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 rounded-full bg-blue-400 border-2 border-white shadow-lg shadow-blue-400/50 group-hover:scale-125 transition-transform"></div>
 
             {/* Encabezado del input */}
             <div className="flex items-start justify-between gap-2 mb-2">
