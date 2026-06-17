@@ -282,7 +282,7 @@ export default function FlowCanvas() {
 
       {/* Panel Derecho - Flujo de Datos */}
       {execution && (
-        <div className="w-80 bg-gray-900 border-l border-gray-800 flex flex-col overflow-hidden shrink-0">
+        <div className="w-1/3 bg-gray-900 border-l border-gray-800 flex flex-col overflow-hidden shrink-0 min-w-96">
           <div className="px-5 py-4 border-b border-gray-800 flex items-center gap-3 shrink-0">
             <span className="font-bold text-white text-sm">Flujo de Datos</span>
             {execution.status === 'success'
@@ -311,32 +311,32 @@ export default function FlowCanvas() {
                   <div className="mt-1 bg-gray-950 rounded-lg p-3 border border-gray-800 space-y-3">
                     <div>
                       <div className="text-xs text-green-500 font-bold mb-1">📥 Input:</div>
-                      <pre className="text-xs font-mono text-green-300 max-h-28 overflow-auto">{JSON.stringify(step.input, null, 2)}</pre>
+                      <pre className="text-xs font-mono text-green-300 max-h-48 overflow-auto">{JSON.stringify(step.input, null, 2)}</pre>
                     </div>
                     {step.output && (
                       <div>
                         <div className="text-xs text-blue-500 font-bold mb-1">📤 Output:</div>
                         {step.output?.png ? (
-                          <div className="mb-3 rounded-lg border border-gray-700 p-2 bg-gray-800 flex justify-center">
+                          <div className="mb-3 rounded-lg border border-gray-700 p-2 bg-gray-800 flex justify-center overflow-hidden">
                             <img
                               src={step.output.png}
                               alt="Output"
-                              style={{ maxWidth: '100%', height: 'auto', maxHeight: '200px' }}
+                              style={{ maxWidth: '100%', height: 'auto', maxHeight: '400px', objectFit: 'contain' }}
                               onError={(e) => console.error('Image load error:', e)}
                             />
                           </div>
                         ) : null}
                         {step.output?.url ? (
-                          <div className="mb-3 rounded-lg border border-gray-700 p-2 bg-gray-800 flex justify-center">
+                          <div className="mb-3 rounded-lg border border-gray-700 p-2 bg-gray-800 flex justify-center overflow-hidden">
                             <img
                               src={step.output.url}
                               alt="Output"
-                              style={{ maxWidth: '100%', height: 'auto', maxHeight: '200px' }}
+                              style={{ maxWidth: '100%', height: 'auto', maxHeight: '400px', objectFit: 'contain' }}
                               onError={(e) => console.error('Image load error:', e)}
                             />
                           </div>
                         ) : null}
-                        <pre className="text-xs font-mono text-blue-300 max-h-28 overflow-auto">{JSON.stringify(step.output, null, 2)}</pre>
+                        <pre className="text-xs font-mono text-blue-300 max-h-48 overflow-auto">{JSON.stringify(step.output, null, 2)}</pre>
                         <div className="flex gap-2 mt-2 flex-wrap">
                           {step.output?.png && (
                             <button
