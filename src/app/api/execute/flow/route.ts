@@ -22,10 +22,25 @@ const MOCK_OUTPUTS: Record<string, (input: any) => any> = {
       mermaid: mermaidLines.join('\n'),
     };
   },
-  'mermaid-to-png': (input: any) => ({
-    png: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
-    url: '/output.png',
-  }),
+  'mermaid-to-png': (input: any) => {
+    const mermaidCode = input.mermaid || 'graph TD\n    A["Sin datos"]';
+    // Generar SVG simple con el código mermaid
+    const svgCode = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400">
+      <rect width="800" height="400" fill="#fff"/>
+      <text x="20" y="30" font-family="monospace" font-size="14" fill="#333">Mermaid Diagram:</text>
+      <text x="20" y="380" font-family="monospace" font-size="11" fill="#666" dominant-baseline="hanging">${mermaidCode.replace(/</g, '&lt;').replace(/>/g, '&gt;').substring(0, 150)}</text>
+      <g transform="translate(50,80)">
+        <rect width="700" height="250" rx="5" fill="#f0f0f0" stroke="#999" stroke-width="2"/>
+        <text x="350" y="125" text-anchor="middle" font-family="Arial" font-size="18" fill="#333" dominant-baseline="middle">Diagrama generado desde Mermaid</text>
+      </g>
+    </svg>`;
+    const svgBase64 = Buffer.from(svgCode).toString('base64');
+    return {
+      png: `data:image/svg+xml;base64,${svgBase64}`,
+      svg: svgCode,
+      url: '/output.svg',
+    };
+  },
 };
 
 export async function POST(req: NextRequest) {
