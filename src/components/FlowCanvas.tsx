@@ -186,7 +186,7 @@ export default function FlowCanvas() {
         </div>
 
         {/* ReactFlow */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative w-full h-full">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -197,7 +197,7 @@ export default function FlowCanvas() {
             nodeTypes={nodeTypes}
             fitView
             fitViewOptions={{ padding: 0.3 }}
-            style={{ background: '#030712' }}
+            style={{ background: '#030712', width: '100%', height: '100%' }}
           >
             <Background variant={BackgroundVariant.Dots} color="#1f2937" gap={24} />
             <Controls style={{ background: '#1f2937', border: '1px solid #374151' }} />

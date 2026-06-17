@@ -4,13 +4,25 @@ const MOCK_OUTPUTS: Record<string, (input: any) => any> = {
   'text-to-workflow': (input: string) => {
     const text = (input || '').trim();
     const sentences = text.split(/[.!?]+/).filter(s => s.trim());
-    const pasos = sentences.slice(0, 3).map((sent, idx) => ({
-      id: idx + 1,
-      titulo: `Paso ${idx + 1}`,
-      descripcion: sent.trim().substring(0, 50),
-    }));
+    const pasos = sentences.slice(0, 3).map((sent, idx) => {
+      const trimmed = sent.trim();
+      let titulo = trimmed;
+      const commaIdx = trimmed.indexOf(',');
+      if (commaIdx > 0 && commaIdx < 60) {
+        titulo = trimmed.substring(0, commaIdx).trim();
+      } else {
+        const words = trimmed.split(/\s+/);
+        titulo = words.slice(0, 5).join(' ');
+      }
+      if (titulo.length > 50) titulo = titulo.substring(0, 47).trim() + '...';
+      return {
+        id: idx + 1,
+        titulo: titulo || `Paso ${idx + 1}`,
+        descripcion: trimmed.substring(0, 100),
+      };
+    });
     if (pasos.length === 0) {
-      pasos.push({ id: 1, titulo: 'Entrada', descripcion: text.substring(0, 50) });
+      pasos.push({ id: 1, titulo: 'Entrada', descripcion: text.substring(0, 100) });
     }
     return {
       workflow: {
