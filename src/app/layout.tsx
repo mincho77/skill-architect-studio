@@ -6,14 +6,12 @@ export const metadata: Metadata = {
   description: "Motor de orquestación puerto-a-puerto",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body className="bg-gray-950 text-white min-h-screen flex">
+        {children}
+      </body>
     </html>
   );
 }

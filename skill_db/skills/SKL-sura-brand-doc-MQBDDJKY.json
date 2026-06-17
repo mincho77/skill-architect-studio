@@ -1,0 +1,47 @@
+{
+  "id": "SKL-sura-brand-doc-MQBDDJKY",
+  "name": "sura-brand-doc",
+  "version": "1.0.1",
+  "description": "Aplica el sistema de diseño corporativo de Seguros SURA a documentos escritos, informes y reportes.\nTiene DOS modos: (1) GENERAR — crea plantillas y documentos nuevos (informes, especificaciones,\nactas, propuestas) en Markdown, HTML de impresión o DOCX respetando la marca;\n(2) AUDITAR — toma documentos existentes y los ajusta para que cumplan con la tipografía,\nmárgenes, paleta de colores, tablas y tono de voz corporativo, entregando un reporte.\nConsulta las secciones del sistema en reference/ para detalles.\nUse when user asks to \"genera un informe\", \"crea una plantilla de documento\",\n\"diseña el reporte de [X]\", \"haz un documento con la marca\",\n\"crea un PDF/Word para [X]\" (MODO GENERAR); o \"audita este informe\",\n\"revisa este documento\", \"ajusta este texto a la marca SURA\", \"corrige el PDF/Word\"\n(MODO AUDITAR).\nDo NOT use para: interfaces de usuario (usar sura-brand-ui),\npresentaciones PowerPoint (usar pptx).\n",
+  "dominio": "documentos",
+  "status": "existente",
+  "tags": [
+    "GENERAR",
+    "AUDITAR",
+    "1",
+    "documentos"
+  ],
+  "inputs": [
+    {
+      "nombre": "contenido",
+      "tipo": "String",
+      "descripcion": "Texto o estructura del documento/UI"
+    },
+    {
+      "nombre": "modo",
+      "tipo": "String",
+      "descripcion": "GENERAR o AUDITAR"
+    }
+  ],
+  "outputs": [
+    {
+      "nombre": "documento",
+      "tipo": "File",
+      "descripcion": "Documento/UI formateado"
+    },
+    {
+      "nombre": "reporte",
+      "tipo": "JSON",
+      "descripcion": "Reporte de cambios"
+    }
+  ],
+  "modos": [
+    "GENERAR",
+    "AUDITAR",
+    "1"
+  ],
+  "package_dir": "skill_db/skills/SKL-sura-brand-doc-MQBDDJKY",
+  "created_at": "2026-06-12T20:19:08.638Z",
+  "schema_version": "2.0",
+  "ejecucion_aprobada": false
+}

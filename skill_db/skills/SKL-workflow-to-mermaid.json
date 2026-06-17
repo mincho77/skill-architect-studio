@@ -1,0 +1,21 @@
+{
+  "id": "SKL-workflow-to-mermaid",
+  "name": "workflow-to-mermaid",
+  "version": "1.0.0",
+  "description": "Convierte un workflow JSON en código Mermaid para visualización de diagramas de secuencia o flujo.",
+  "dominio": "diseño",
+  "status": "existente",
+  "tags": ["mermaid", "diagrama", "visualizacion", "GENERAR"],
+  "modos": ["GENERAR"],
+  "inputs": [
+    { "nombre": "workflow", "tipo": "JSON", "descripcion": "Array de pasos del flujo de trabajo", "requerido": true }
+  ],
+  "outputs": [
+    { "nombre": "mermaid", "tipo": "String", "descripcion": "Código Mermaid del diagrama" }
+  ],
+  "package_dir": "skill_db/skills/SKL-workflow-to-mermaid",
+  "cowork": { "category": "design", "icon": "Sparkles" },
+  "created_at": "2026-06-12T00:00:00.000Z",
+  "schema_version": "2.0",
+  "ejecucion_aprobada": true
+}

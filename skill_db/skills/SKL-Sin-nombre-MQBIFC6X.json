@@ -1,0 +1,35 @@
+{
+  "id": "SKL-Sin-nombre-MQBIFC6X",
+  "name": "Sin nombre",
+  "version": "1.0.0",
+  "description": "",
+  "dominio": "procesos",
+  "status": "existente",
+  "tags": [
+    "procesos"
+  ],
+  "inputs": [
+    {
+      "nombre": "datos",
+      "tipo": "JSON",
+      "descripcion": "Datos a analizar"
+    },
+    {
+      "nombre": "criterios",
+      "tipo": "String",
+      "descripcion": "Criterios de análisis"
+    }
+  ],
+  "outputs": [
+    {
+      "nombre": "resultado",
+      "tipo": "JSON",
+      "descripcion": "Resultado del análisis"
+    }
+  ],
+  "modos": [],
+  "package_dir": "skill_db/skills/SKL-Sin-nombre-MQBIFC6X",
+  "created_at": "2026-06-12T22:40:52.315Z",
+  "schema_version": "2.0",
+  "ejecucion_aprobada": false
+}

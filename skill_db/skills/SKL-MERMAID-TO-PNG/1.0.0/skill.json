@@ -1,0 +1,8 @@
+{
+  "id": "SKL-MERMAID-TO-PNG",
+  "name": "mermaid-to-png",
+  "version": "1.0.0",
+  "description": "Renderiza Mermaid a SVG",
+  "inputs": [{"nombre": "mermaid_code", "tipo": "String", "requerido": true}],
+  "outputs": [{"nombre": "svg_data", "tipo": "String"}]
+}

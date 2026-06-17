@@ -1,0 +1,9 @@
+{
+  "id": "SKL-TEXT-TO-MERMAID",
+  "name": "text-to-mermaid",
+  "version": "1.0.0",
+  "description": "Convierte texto a Mermaid",
+  "inputs": [{"nombre": "texto", "tipo": "String", "requerido": true}],
+  "outputs": [{"nombre": "mermaid_code", "tipo": "String"}],
+  "ai_model": true
+}

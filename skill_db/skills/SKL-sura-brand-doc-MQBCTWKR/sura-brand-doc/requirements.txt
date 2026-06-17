@@ -1,0 +1,11 @@
+# sura-brand-doc — Dependencias Python
+#
+# Instalar con:  pip install -r requirements.txt
+#
+# Estas dependencias permiten compilar y validar documentos con los scripts del skill.
+
+# Procesamiento de documentos HTML
+beautifulsoup4>=4.12.0
+
+# Compilación de Markdown a HTML
+markdown>=3.5.0

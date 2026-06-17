@@ -1,255 +1,325 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import {
   ReactFlow,
   Node,
   Edge,
+  Controls,
+  Background,
+  BackgroundVariant,
   useNodesState,
   useEdgesState,
   addEdge,
   Connection,
-  Background,
-  Controls,
-  MiniMap,
-  Panel,
-  Handle,
-  Position,
-  NodeProps,
+  MarkerType,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { FlowDefinition } from '../lib/schemas';
-import NodePanel from './NodePanel';
+import SkillNode from './SkillNode';
+import { EnhancedInputPanel } from './EnhancedInputPanel';
+import { Play, Loader, CheckCircle, AlertCircle, ChevronDown, ChevronRight, Edit2, X } from 'lucide-react';
 
-const PORT_COLORS: Record<string, string> = {
-  String: '#6366f1',
-  Number: '#f59e0b',
-  Boolean: '#10b981',
-  JSON: '#3b82f6',
-  File: '#ef4444',
-  Folder: '#8b5cf6',
-  'Array<string>': '#ec4899',
+const nodeTypes = { skillNode: SkillNode };
+
+const SKILL_DEFS: Record<string, any> = {
+  'text-to-workflow': {
+    inputs: [{ nombre: 'texto', tipo: 'String' }],
+    outputs: [{ nombre: 'workflow', tipo: 'JSON' }],
+  },
+  'workflow-to-mermaid': {
+    inputs: [{ nombre: 'workflow', tipo: 'JSON' }],
+    outputs: [{ nombre: 'mermaid', tipo: 'String' }],
+  },
+  'mermaid-to-png': {
+    inputs: [{ nombre: 'mermaid', tipo: 'String' }],
+    outputs: [{ nombre: 'png', tipo: 'File' }, { nombre: 'url', tipo: 'String' }],
+  },
 };
 
-function SkillNodeComponent({ data, selected }: NodeProps) {
-  const inputs = (data.inputs as any[]) || [];
-  const outputs = (data.outputs as any[]) || [];
+const INITIAL_NODES: Node[] = [
+  {
+    id: '1', type: 'skillNode', position: { x: 60, y: 180 },
+    data: { label: 'Text → Workflow', skillId: 'text-to-workflow', status: 'idle', ...SKILL_DEFS['text-to-workflow'] },
+  },
+  {
+    id: '2', type: 'skillNode', position: { x: 380, y: 180 },
+    data: { label: 'Workflow → Mermaid', skillId: 'workflow-to-mermaid', status: 'idle', ...SKILL_DEFS['workflow-to-mermaid'] },
+  },
+  {
+    id: '3', type: 'skillNode', position: { x: 700, y: 180 },
+    data: { label: 'Mermaid → PNG', skillId: 'mermaid-to-png', status: 'idle', ...SKILL_DEFS['mermaid-to-png'] },
+  },
+];
 
-  return (
-    <div className={`bg-gray-800 border-2 rounded-lg shadow-xl min-w-[200px] ${selected ? 'border-blue-400' : 'border-gray-600'}`}>
-      <div className="bg-blue-700 text-white px-3 py-2 rounded-t-lg">
-        <div className="font-bold text-sm">{data.label as string}</div>
-        <div className="text-xs opacity-60">{data.skillId as string}</div>
-      </div>
-      <div className="px-2 py-2 flex gap-4">
-        <div className="flex flex-col gap-1.5 flex-1">
-          {inputs.map((inp: any) => (
-            <div key={inp.nombre} className="relative flex items-center gap-1">
-              <Handle
-                type="target"
-                position={Position.Left}
-                id={inp.nombre}
-                style={{ background: PORT_COLORS[inp.tipo] || '#6b7280', width: 10, height: 10, left: -14 }}
-              />
-              <span className="text-xs text-gray-300">{inp.nombre}</span>
-              <span className="text-xs text-gray-500">({inp.tipo})</span>
-            </div>
-          ))}
-        </div>
-        <div className="flex flex-col gap-1.5 items-end flex-1">
-          {outputs.map((out: any) => (
-            <div key={out.nombre} className="relative flex items-center gap-1">
-              <span className="text-xs text-gray-500">({out.tipo})</span>
-              <span className="text-xs text-gray-300">{out.nombre}</span>
-              <Handle
-                type="source"
-                position={Position.Right}
-                id={out.nombre}
-                style={{ background: PORT_COLORS[out.tipo] || '#6b7280', width: 10, height: 10, right: -14 }}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-      {data.status && (
-        <div className="px-3 pb-2">
-          <span className={`text-xs px-2 py-0.5 rounded-full ${data.status === 'existente' ? 'bg-green-900 text-green-300' : 'bg-yellow-900 text-yellow-300'}`}>
-            {data.status as string}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-}
+const INITIAL_EDGES: Edge[] = [
+  { id: 'e1-2', source: '1', sourceHandle: 'out-workflow', target: '2', targetHandle: 'in-workflow', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#9333ea', strokeWidth: 2 } },
+  { id: 'e2-3', source: '2', sourceHandle: 'out-mermaid', target: '3', targetHandle: 'in-mermaid', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#9333ea', strokeWidth: 2 } },
+];
 
-const nodeTypes = { skillNode: SkillNodeComponent };
-
-export default function FlowCanvas({ initialFlows }: { initialFlows: FlowDefinition[] }) {
-  const [selectedFlowId, setSelectedFlowId] = useState(initialFlows[0]?.id || '');
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+export default function FlowCanvas() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(INITIAL_NODES);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(INITIAL_EDGES);
   const [executing, setExecuting] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  const [skills, setSkills] = useState<Record<string, any>>({});
+  const [execution, setExecution] = useState<any>(null);
+  const [expandedStep, setExpandedStep] = useState<number | null>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
-  const [nodeValues, setNodeValues] = useState<Record<string, Record<string, any>>>({});
+  const [inputs, setInputs] = useState<Record<string, string>>({ texto: 'El cliente solicita un informe detallado del proyecto Q3' });
+  const [showInputPanel, setShowInputPanel] = useState(true);
 
-  const selectedFlow = initialFlows.find(f => f.id === selectedFlowId);
-
-  useEffect(() => {
-    fetch('/api/skills/list')
-      .then(r => r.json())
-      .then(data => {
-        const map: Record<string, any> = {};
-        (data.skills || []).forEach((s: any) => { map[s.id] = s; });
-        setSkills(map);
-      })
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    if (!selectedFlow) return;
-    setResult(null);
-    setSelectedNode(null);
-
-    const newNodes: Node[] = selectedFlow.nodes.map((n, i) => {
-      const skill = skills[n.skill_id] || {};
-      return {
-        id: n.instance_id,
-        type: 'skillNode',
-        position: n.position || { x: 120 + i * 300, y: 200 },
-        data: {
-          label: n.label || n.skill_id,
-          skillId: n.skill_id,
-          inputs: skill.inputs || [],
-          outputs: skill.outputs || [],
-          status: skill.status || 'desconocido',
-        },
-      };
-    });
-
-    const newEdges: Edge[] = selectedFlow.connections.map(c => ({
-      id: c.id,
-      source: c.from.node,
-      sourceHandle: c.from.port,
-      target: c.to.node,
-      targetHandle: c.to.port,
-      animated: true,
-      style: { stroke: '#6366f1', strokeWidth: 2 },
-      label: `${c.from.port} → ${c.to.port}`,
-      labelStyle: { fill: '#9ca3af', fontSize: 10 },
-      labelBgStyle: { fill: '#1f2937' },
-    }));
-
-    setNodes(newNodes);
-    setEdges(newEdges);
-  }, [selectedFlowId, skills]);
+  const inputsArray = Object.keys(inputs).map(key => ({
+    nombre: key,
+    tipo: 'String',
+    requerido: true,
+    valor: inputs[key],
+  }));
 
   const onConnect = useCallback(
-    (connection: Connection) => setEdges(eds => addEdge({
-      ...connection,
-      animated: true,
-      style: { stroke: '#6366f1', strokeWidth: 2 },
-    }, eds)),
-    []
+    (connection: Connection) =>
+      setEdges(eds => addEdge({
+        ...connection,
+        markerEnd: { type: MarkerType.ArrowClosed },
+        style: { stroke: '#9333ea', strokeWidth: 2 },
+      }, eds)),
+    [setEdges]
   );
 
   const handleExecute = async () => {
-    if (!selectedFlow) return;
     setExecuting(true);
-    setResult(null);
-    try {
-      const res = await fetch(`/api/execute/${selectedFlow.id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inputs: nodeValues }),
-      });
-      const data = await res.json();
-      setResult(data);
-    } catch (e) {
-      setResult({ error: String(e) });
-    } finally {
-      setExecuting(false);
+    setExecution(null);
+    setExpandedStep(null);
+    setShowInputPanel(false);
+
+    setNodes(nds => nds.map(n => ({ ...n, data: { ...n.data, status: 'idle', duration: undefined } })));
+    setEdges(eds => eds.map(e => ({ ...e, animated: false, style: { stroke: '#9333ea', strokeWidth: 2 } })));
+
+    const orderedNodes = [...nodes];
+    const steps: any[] = [];
+    let currentData: any = inputs;
+
+    for (let i = 0; i < orderedNodes.length; i++) {
+      const node = orderedNodes[i];
+
+      setNodes(nds => nds.map(n => n.id === node.id ? { ...n, data: { ...n.data, status: 'running' } } : n));
+      setEdges(eds => eds.map(e => e.target === node.id ? { ...e, animated: true, style: { stroke: '#3b82f6', strokeWidth: 2 } } : e));
+
+      await new Promise(r => setTimeout(r, 900));
+
+      const stepStart = Date.now();
+      let output: any = currentData;
+      let status = 'completed';
+
+      try {
+        const res = await fetch('/api/execute/flow', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ flowId: 'FLOW-001', nodes: [node], edges: [], initialInput: currentData }),
+        });
+        const result = await res.json();
+        if (result.execution?.steps?.[0]) {
+          output = result.execution.steps[0].output;
+          status = result.execution.steps[0].status;
+        }
+      } catch (e) { status = 'error'; }
+
+      const duration = Date.now() - stepStart;
+      steps.push({ nodeId: node.id, skillId: node.data.skillId, skillName: node.data.label, status, input: currentData, output, duration });
+
+      setNodes(nds => nds.map(n => n.id === node.id ? { ...n, data: { ...n.data, status, duration } } : n));
+      setEdges(eds => eds.map(e => e.target === node.id ? { ...e, animated: false, style: { stroke: status === 'completed' ? '#22c55e' : '#ef4444', strokeWidth: 2 } } : e));
+
+      if (status === 'error') break;
+      currentData = output;
     }
+
+    setExecution({
+      id: `EXE-${Date.now().toString(36).toUpperCase()}`,
+      status: steps.every(s => s.status === 'completed') ? 'success' : 'failed',
+      steps,
+    });
+    setExecuting(false);
+    setExpandedStep(0);
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-900">
-      {/* Header */}
-      <div className="bg-gray-800 text-white px-6 py-3 flex items-center gap-4 border-b border-gray-700 shrink-0">
-        <div>
-          <h1 className="text-xl font-bold text-blue-400">⚡ Skill Studio v2</h1>
-          <p className="text-xs text-gray-400">Motor de orquestación puerto-a-puerto</p>
+    <div className="flex h-screen bg-gray-950 overflow-hidden">
+      {/* Canvas */}
+      <div className="flex-1 flex flex-col">
+        {/* Toolbar */}
+        <div className="flex items-center gap-3 px-5 py-3 bg-gray-900 border-b border-gray-800 shrink-0">
+          <span className="text-white font-bold text-sm">Flow Canvas</span>
+          <span className="text-gray-500 text-xs">{nodes.length} nodos · {edges.length} conexiones</span>
+          <div className="ml-auto flex items-center gap-3">
+            <button
+              onClick={() => setShowInputPanel(!showInputPanel)}
+              className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-xs font-bold flex items-center gap-2"
+            >
+              <Edit2 size={13} /> Inputs
+            </button>
+            {execution && (
+              <span className={`text-xs px-3 py-1 rounded-full font-bold border ${execution.status === 'success' ? 'bg-green-900/30 border-green-700 text-green-400' : 'bg-red-900/30 border-red-700 text-red-400'}`}>
+                {execution.id} · {execution.status}
+              </span>
+            )}
+            <button
+              onClick={handleExecute}
+              disabled={executing}
+              className="px-4 py-2 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white rounded-lg text-sm font-bold flex items-center gap-2"
+            >
+              {executing ? <Loader size={15} className="animate-spin" /> : <Play size={15} />}
+              {executing ? 'Ejecutando...' : 'Ejecutar Flow'}
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-3 ml-6">
-          <label className="text-sm text-gray-400">Flow:</label>
-          <select
-            value={selectedFlowId}
-            onChange={e => setSelectedFlowId(e.target.value)}
-            className="bg-gray-700 text-white border border-gray-600 rounded px-3 py-1.5 text-sm"
-          >
-            {initialFlows.map(f => (
-              <option key={f.id} value={f.id}>{f.name}</option>
-            ))}
-          </select>
-          <span className="text-xs text-gray-500">
-            {selectedFlow?.nodes?.length || 0} nodos · Rev {selectedFlow?.rev || 0}
-          </span>
-        </div>
-        <button
-          onClick={handleExecute}
-          disabled={!selectedFlow || executing}
-          className="ml-auto px-5 py-2 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white rounded-lg text-sm font-bold transition-colors"
-        >
-          {executing ? '⏳ Ejecutando...' : '▶ Ejecutar Flow'}
-        </button>
-      </div>
 
-      {/* Body */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Canvas */}
-        <div className="flex-1">
+        {/* ReactFlow */}
+        <div className="flex-1 relative">
           <ReactFlow
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onNodeClick={(_, node) => setSelectedNode(node)}
             nodeTypes={nodeTypes}
-            onNodeClick={(_e, node) => setSelectedNode(node)}
             fitView
             fitViewOptions={{ padding: 0.3 }}
-            className="bg-gray-900"
+            style={{ background: '#030712' }}
           >
-            <Background color="#374151" gap={20} size={1} />
-            <Controls />
-            <MiniMap nodeColor="#6366f1" maskColor="rgba(17,24,39,0.8)" />
-            {result && (
-              <Panel position="bottom-center">
-                <div className={`px-6 py-3 rounded-lg text-sm font-mono shadow-xl border ${
-                  result.error
-                    ? 'bg-red-900 border-red-500 text-red-200'
-                    : 'bg-green-900 border-green-500 text-green-200'
-                }`}>
-                  {result.error ? `❌ ${result.error}` : `✅ ${result.execution_id} · ${result.status}`}
-                </div>
-              </Panel>
-            )}
+            <Background variant={BackgroundVariant.Dots} color="#1f2937" gap={24} />
+            <Controls style={{ background: '#1f2937', border: '1px solid #374151' }} />
           </ReactFlow>
-        </div>
 
-        {/* Node Inspector Panel */}
-        {selectedNode && (
-          <NodePanel
-            node={selectedNode}
-            onClose={() => setSelectedNode(null)}
-            values={nodeValues[selectedNode.id] || {}}
-            onValuesChange={(nodeId, vals) =>
-              setNodeValues(prev => ({ ...prev, [nodeId]: vals }))
-            }
-          />
-        )}
+          {/* Input Panel (flotante) */}
+          {showInputPanel && (
+            <div className="absolute top-4 left-4 z-10">
+              <div className="flex items-start gap-2">
+                <EnhancedInputPanel
+                  inputs={inputsArray}
+                  onInputChange={(nombre, valor) => setInputs(prev => ({ ...prev, [nombre]: valor }))}
+                  onExecute={handleExecute}
+                  isExecuting={executing}
+                />
+                <button
+                  onClick={() => setShowInputPanel(false)}
+                  className="mt-2 p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                  title="Cerrar panel"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Node Detail Panel (flotante) */}
+          {selectedNode && (
+            <div className="absolute top-4 right-4 bg-gray-900 border border-gray-700 rounded-xl p-5 w-80 shadow-2xl z-10 max-h-[80vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-bold text-white">{selectedNode.data.label}</span>
+                <button onClick={() => setSelectedNode(null)} className="text-gray-500 hover:text-white">
+                  <X size={16} />
+                </button>
+              </div>
+              <div className="text-xs text-gray-500 mb-4">{selectedNode.data.skillId}</div>
+
+              {/* Ports */}
+              <div className="mb-4">
+                <div className="text-xs font-bold text-gray-400 mb-2">ENTRADAS</div>
+                {selectedNode.data.inputs?.map((inp: any, i: number) => (
+                  <div key={i} className="flex items-center gap-2 mb-1 p-2 bg-gray-800 rounded-lg">
+                    <div className="w-2 h-2 rounded-full" style={{ background: { String: '#6366f1', JSON: '#3b82f6', File: '#ef4444', Number: '#eab308' }[inp.tipo as string] || '#6b7280' }} />
+                    <span className="text-white text-xs font-semibold">{inp.nombre}</span>
+                    <span className="text-gray-500 text-xs ml-auto font-mono">{inp.tipo}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mb-4">
+                <div className="text-xs font-bold text-gray-400 mb-2">SALIDAS</div>
+                {selectedNode.data.outputs?.map((out: any, i: number) => (
+                  <div key={i} className="flex items-center gap-2 mb-1 p-2 bg-gray-800 rounded-lg">
+                    <div className="w-2 h-2 rounded-full" style={{ background: { String: '#6366f1', JSON: '#3b82f6', File: '#ef4444', Number: '#eab308' }[out.tipo as string] || '#6b7280' }} />
+                    <span className="text-white text-xs font-semibold">{out.nombre}</span>
+                    <span className="text-gray-500 text-xs ml-auto font-mono">{out.tipo}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Execution result for this node */}
+              {execution?.steps?.find((s: any) => s.nodeId === selectedNode.id) && (() => {
+                const step = execution.steps.find((s: any) => s.nodeId === selectedNode.id);
+                return (
+                  <div>
+                    <div className="text-xs font-bold text-gray-400 mb-2">ÚLTIMA EJECUCIÓN</div>
+                    <div className="mb-3">
+                      <div className="text-xs text-green-500 font-bold mb-1">📥 Input:</div>
+                      <pre className="text-xs font-mono text-green-300 bg-gray-950 rounded p-2 max-h-28 overflow-auto">
+                        {JSON.stringify(step.input, null, 2)}
+                      </pre>
+                    </div>
+                    <div>
+                      <div className="text-xs text-blue-500 font-bold mb-1">📤 Output:</div>
+                      <pre className="text-xs font-mono text-blue-300 bg-gray-950 rounded p-2 max-h-28 overflow-auto">
+                        {JSON.stringify(step.output, null, 2)}
+                      </pre>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-2">{step.duration}ms</div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Panel Derecho - Flujo de Datos */}
+      {execution && (
+        <div className="w-80 bg-gray-900 border-l border-gray-800 flex flex-col overflow-hidden shrink-0">
+          <div className="px-5 py-4 border-b border-gray-800 flex items-center gap-3 shrink-0">
+            <span className="font-bold text-white text-sm">Flujo de Datos</span>
+            {execution.status === 'success'
+              ? <CheckCircle size={14} className="text-green-400 ml-auto" />
+              : <AlertCircle size={14} className="text-red-400 ml-auto" />}
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {execution.steps.map((step: any, idx: number) => (
+              <div key={idx}>
+                <button
+                  onClick={() => setExpandedStep(expandedStep === idx ? null : idx)}
+                  className={`w-full p-3 rounded-lg border text-left transition-all ${step.status === 'completed' ? 'bg-green-900/20 border-green-800 hover:border-green-600' : 'bg-red-900/20 border-red-800'}`}
+                >
+                  <div className="flex items-center gap-2">
+                    {step.status === 'completed'
+                      ? <CheckCircle size={13} className="text-green-400 shrink-0" />
+                      : <AlertCircle size={13} className="text-red-400 shrink-0" />}
+                    <span className="font-bold text-white text-xs">{step.skillName}</span>
+                    <span className="text-gray-600 text-xs ml-auto">{step.duration}ms</span>
+                    {expandedStep === idx ? <ChevronDown size={12} className="text-gray-500" /> : <ChevronRight size={12} className="text-gray-500" />}
+                  </div>
+                </button>
+
+                {expandedStep === idx && (
+                  <div className="mt-1 bg-gray-950 rounded-lg p-3 border border-gray-800 space-y-3">
+                    <div>
+                      <div className="text-xs text-green-500 font-bold mb-1">📥 Input:</div>
+                      <pre className="text-xs font-mono text-green-300 max-h-28 overflow-auto">{JSON.stringify(step.input, null, 2)}</pre>
+                    </div>
+                    {step.output && (
+                      <div>
+                        <div className="text-xs text-blue-500 font-bold mb-1">📤 Output:</div>
+                        <pre className="text-xs font-mono text-blue-300 max-h-28 overflow-auto">{JSON.stringify(step.output, null, 2)}</pre>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {idx < execution.steps.length - 1 && (
+                  <div className="flex justify-center py-1 text-purple-600 text-lg">↓</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

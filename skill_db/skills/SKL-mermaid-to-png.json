@@ -1,0 +1,22 @@
+{
+  "id": "SKL-mermaid-to-png",
+  "name": "mermaid-to-png",
+  "version": "1.0.0",
+  "description": "Renderiza código Mermaid a imagen PNG de alta calidad. Usa mermaid-cli para generar el archivo de imagen.",
+  "dominio": "diseño",
+  "status": "existente",
+  "tags": ["png", "imagen", "render", "mermaid", "GENERAR"],
+  "modos": ["GENERAR"],
+  "inputs": [
+    { "nombre": "mermaid", "tipo": "String", "descripcion": "Código Mermaid válido", "requerido": true }
+  ],
+  "outputs": [
+    { "nombre": "png", "tipo": "File", "descripcion": "Imagen PNG del diagrama" },
+    { "nombre": "url", "tipo": "String", "descripcion": "URL temporal para visualizar" }
+  ],
+  "package_dir": "skill_db/skills/SKL-mermaid-to-png",
+  "cowork": { "category": "design", "icon": "Code" },
+  "created_at": "2026-06-12T00:00:00.000Z",
+  "schema_version": "2.0",
+  "ejecucion_aprobada": true
+}

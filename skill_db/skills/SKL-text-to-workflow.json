@@ -1,0 +1,21 @@
+{
+  "id": "SKL-text-to-workflow",
+  "name": "text-to-workflow",
+  "version": "1.0.0",
+  "description": "Convierte un texto descriptivo en un flujo estructurado de pasos con actores. Analiza lenguaje natural y extrae secuencias de acciones con responsables.",
+  "dominio": "reportes",
+  "status": "existente",
+  "tags": ["workflow", "analisis", "texto", "GENERAR"],
+  "modos": ["GENERAR"],
+  "inputs": [
+    { "nombre": "texto", "tipo": "String", "descripcion": "Descripción del proceso en lenguaje natural", "requerido": true }
+  ],
+  "outputs": [
+    { "nombre": "workflow", "tipo": "JSON", "descripcion": "Array de pasos [{paso, actor, accion, data}]" }
+  ],
+  "package_dir": "skill_db/skills/SKL-text-to-workflow",
+  "cowork": { "category": "analysis", "icon": "Brain" },
+  "created_at": "2026-06-12T00:00:00.000Z",
+  "schema_version": "2.0",
+  "ejecucion_aprobada": true
+}
