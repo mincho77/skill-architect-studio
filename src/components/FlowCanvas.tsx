@@ -324,21 +324,21 @@ export default function FlowCanvas() {
                       <div>
                         <div className="text-xs text-blue-500 font-bold mb-1">📤 Output:</div>
                         {step.output?.png ? (
-                          <div className="mb-3 rounded-lg border border-gray-700 p-2 bg-gray-800 flex justify-center overflow-hidden">
+                          <div className="mb-3 rounded-lg border border-gray-700 bg-gray-800 overflow-hidden" style={{ width: '100%' }}>
                             <img
                               src={step.output.png}
                               alt="Output"
-                              style={{ maxWidth: '100%', height: 'auto', maxHeight: '400px', objectFit: 'contain' }}
+                              style={{ width: '100%', height: 'auto', display: 'block' }}
                               onError={(e) => console.error('Image load error:', e)}
                             />
                           </div>
                         ) : null}
                         {step.output?.url ? (
-                          <div className="mb-3 rounded-lg border border-gray-700 p-2 bg-gray-800 flex justify-center overflow-hidden">
+                          <div className="mb-3 rounded-lg border border-gray-700 bg-gray-800 overflow-hidden" style={{ width: '100%' }}>
                             <img
                               src={step.output.url}
                               alt="Output"
-                              style={{ maxWidth: '100%', height: 'auto', maxHeight: '400px', objectFit: 'contain' }}
+                              style={{ width: '100%', height: 'auto', display: 'block' }}
                               onError={(e) => console.error('Image load error:', e)}
                             />
                           </div>
