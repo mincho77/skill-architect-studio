@@ -38,7 +38,6 @@ const MOCK_OUTPUTS: Record<string, (input: any) => any> = {
     return {
       png: `data:image/svg+xml;base64,${svgBase64}`,
       svg: svgCode,
-      url: '/output.svg',
     };
   },
 };
