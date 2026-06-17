@@ -23,17 +23,61 @@ const MOCK_OUTPUTS: Record<string, (input: any) => any> = {
     };
   },
   'mermaid-to-png': (input: any) => {
-    const mermaidCode = input.mermaid || 'graph TD\n    A["Sin datos"]';
-    // Generar SVG simple con el código mermaid
-    const svgCode = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400">
-      <rect width="800" height="400" fill="#fff"/>
-      <text x="20" y="30" font-family="monospace" font-size="14" fill="#333">Mermaid Diagram:</text>
-      <text x="20" y="380" font-family="monospace" font-size="11" fill="#666" dominant-baseline="hanging">${mermaidCode.replace(/</g, '&lt;').replace(/>/g, '&gt;').substring(0, 150)}</text>
-      <g transform="translate(50,80)">
-        <rect width="700" height="250" rx="5" fill="#f0f0f0" stroke="#999" stroke-width="2"/>
-        <text x="350" y="125" text-anchor="middle" font-family="Arial" font-size="18" fill="#333" dominant-baseline="middle">Diagrama generado desde Mermaid</text>
-      </g>
+    const mermaidCode = (input.mermaid || 'graph TD\n    A["Sin datos"]').trim();
+
+    // Parsear nodos y edges del mermaid
+    const lines = mermaidCode.split('\n').slice(1); // skip "graph TD"
+    const nodes: Record<string, string> = {};
+    const edges: { from: string; to: string }[] = [];
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      // Match: A0["Label"]
+      const nodeMatch = trimmed.match(/^(\w+)\["([^"]+)"\]$/);
+      if (nodeMatch) nodes[nodeMatch[1]] = nodeMatch[2];
+      // Match: A0 --> A1
+      const edgeMatch = trimmed.match(/^(\w+)\s*-->\s*(\w+)$/);
+      if (edgeMatch) edges.push({ from: edgeMatch[1], to: edgeMatch[2] });
+    }
+
+    const nodeIds = Object.keys(nodes);
+    const nodeW = 160, nodeH = 50, gapX = 60, padX = 40, padY = 60;
+    const totalW = nodeIds.length * nodeW + (nodeIds.length - 1) * gapX + padX * 2;
+    const totalH = nodeH + padY * 2 + 40;
+
+    const nodePos: Record<string, { x: number; y: number }> = {};
+    nodeIds.forEach((id, i) => {
+      nodePos[id] = { x: padX + i * (nodeW + gapX), y: padY };
+    });
+
+    const rects = nodeIds.map((id) => {
+      const { x, y } = nodePos[id];
+      const label = nodes[id];
+      return `
+        <rect x="${x}" y="${y}" width="${nodeW}" height="${nodeH}" rx="8" fill="#4f46e5" stroke="#818cf8" stroke-width="2"/>
+        <text x="${x + nodeW / 2}" y="${y + nodeH / 2}" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="13" fill="#fff" font-weight="bold">${label}</text>`;
+    }).join('');
+
+    const arrows = edges.map(({ from, to }) => {
+      if (!nodePos[from] || !nodePos[to]) return '';
+      const fx = nodePos[from].x + nodeW;
+      const fy = nodePos[from].y + nodeH / 2;
+      const tx = nodePos[to].x;
+      const ty = nodePos[to].y + nodeH / 2;
+      return `<line x1="${fx}" y1="${fy}" x2="${tx - 10}" y2="${ty}" stroke="#818cf8" stroke-width="2" marker-end="url(#arr)"/>`;
+    }).join('');
+
+    const svgCode = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalW} ${totalH}" width="${totalW}" height="${totalH}">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#818cf8"/>
+        </marker>
+      </defs>
+      <rect width="${totalW}" height="${totalH}" fill="#0f172a"/>
+      ${arrows}
+      ${rects}
     </svg>`;
+
     const svgBase64 = Buffer.from(svgCode).toString('base64');
     return {
       png: `data:image/svg+xml;base64,${svgBase64}`,

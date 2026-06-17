@@ -156,7 +156,7 @@ export default function FlowCanvas() {
       <div className="flex-1 flex flex-col">
         {/* Toolbar */}
         <div className="flex items-center gap-3 px-5 py-3 bg-gray-900 border-b border-gray-800 shrink-0">
-          <span className="text-white font-bold text-sm">Flow Canvas</span>
+          <span className="text-white font-bold text-sm">Skill Studio</span>
           <span className="text-gray-500 text-xs">{nodes.length} nodos · {edges.length} conexiones</span>
           <div className="ml-auto flex items-center gap-3">
             <button
