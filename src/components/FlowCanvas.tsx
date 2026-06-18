@@ -17,10 +17,11 @@ import {
 import '@xyflow/react/dist/style.css';
 import SkillNode from './SkillNode';
 import InputNode from './InputNode';
+import SvgViewerNode from './SvgViewerNode';
 import { EnhancedInputPanel } from './EnhancedInputPanel';
 import { Play, Loader, CheckCircle, AlertCircle, ChevronDown, ChevronRight, Edit2, X } from 'lucide-react';
 
-const nodeTypes = { skillNode: SkillNode, inputNode: InputNode };
+const nodeTypes = { skillNode: SkillNode, inputNode: InputNode, svgViewerNode: SvgViewerNode };
 
 const SKILL_DEFS: Record<string, any> = {
   'text-to-workflow': {
@@ -31,9 +32,9 @@ const SKILL_DEFS: Record<string, any> = {
     inputs: [{ nombre: 'workflow', tipo: 'JSON' }],
     outputs: [{ nombre: 'mermaid', tipo: 'String' }],
   },
-  'mermaid-to-png': {
+  'mermaid-to-svg': {
     inputs: [{ nombre: 'mermaid', tipo: 'String' }],
-    outputs: [{ nombre: 'png', tipo: 'File' }, { nombre: 'url', tipo: 'String' }],
+    outputs: [{ nombre: 'svg', tipo: 'String' }],
   },
 };
 
@@ -55,15 +56,15 @@ const INITIAL_NODES: Node[] = [
     data: { label: 'Workflow → Mermaid', skillId: 'workflow-to-mermaid', status: 'idle', ...SKILL_DEFS['workflow-to-mermaid'] },
   },
   {
-    id: '3', type: 'skillNode', position: { x: 700, y: 180 },
-    data: { label: 'Mermaid → PNG', skillId: 'mermaid-to-png', status: 'idle', ...SKILL_DEFS['mermaid-to-png'] },
+    id: '3', type: 'svgViewerNode', position: { x: 700, y: 100 },
+    data: { label: 'SVG Viewer', skillId: 'mermaid-to-svg', status: 'idle', svg: '' },
   },
 ];
 
 const INITIAL_EDGES: Edge[] = [
   { id: 'e0-1', source: '0', sourceHandle: 'input-texto', target: '1', targetHandle: 'in-texto', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
   { id: 'e1-2', source: '1', sourceHandle: 'out-workflow', target: '2', targetHandle: 'in-workflow', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#9333ea', strokeWidth: 2 } },
-  { id: 'e2-3', source: '2', sourceHandle: 'out-mermaid', target: '3', targetHandle: 'in-mermaid', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#9333ea', strokeWidth: 2 } },
+  { id: 'e2-3', source: '2', sourceHandle: 'out-mermaid', target: '3', targetHandle: 'out-svg', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#10b981', strokeWidth: 2 } },
 ];
 
 export default function FlowCanvas() {
@@ -134,7 +135,10 @@ export default function FlowCanvas() {
       const duration = Date.now() - stepStart;
       steps.push({ nodeId: node.id, skillId: node.data.skillId, skillName: node.data.label, status, input: currentData, output, duration });
 
-      setNodes(nds => nds.map(n => n.id === node.id ? { ...n, data: { ...n.data, status, duration } } : n));
+      const nodeUpdate: any = { status, duration };
+      if (output?.svg) nodeUpdate.svg = output.svg;
+
+      setNodes(nds => nds.map(n => n.id === node.id ? { ...n, data: { ...n.data, ...nodeUpdate } } : n));
       setEdges(eds => eds.map(e => e.target === node.id ? { ...e, animated: false, style: { stroke: status === 'completed' ? '#22c55e' : '#ef4444', strokeWidth: 2 } } : e));
 
       if (status === 'error') break;

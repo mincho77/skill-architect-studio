@@ -42,7 +42,7 @@ const MOCK_OUTPUTS: Record<string, (input: any) => any> = {
       mermaid: mermaidLines.join('\n'),
     };
   },
-  'mermaid-to-png': (input: any) => {
+  'mermaid-to-svg': (input: any) => {
     const mermaidCode = (input.mermaid || 'graph TD\n    A["Sin datos"]').trim();
 
     // Parsear nodos y edges del mermaid
@@ -98,9 +98,7 @@ const MOCK_OUTPUTS: Record<string, (input: any) => any> = {
       ${rects}
     </svg>`;
 
-    const svgBase64 = Buffer.from(svgCode).toString('base64');
     return {
-      png: `data:image/svg+xml;base64,${svgBase64}`,
       svg: svgCode,
     };
   },
