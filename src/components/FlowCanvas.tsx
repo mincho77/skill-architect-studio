@@ -207,6 +207,12 @@ export default function FlowCanvas() {
             >
               <Edit2 size={13} /> Inputs
             </button>
+            <a
+              href="/skills/builder"
+              className="px-3 py-1.5 bg-purple-700 hover:bg-purple-600 text-white rounded-lg text-xs font-bold flex items-center gap-2"
+            >
+              + Crear Skill
+            </a>
             {execution && (
               <span
                 onClick={() => setExecution(null)}
