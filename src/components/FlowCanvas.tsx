@@ -18,6 +18,7 @@ import '@xyflow/react/dist/style.css';
 import SkillNode from './SkillNode';
 import InputNode from './InputNode';
 import SvgViewerNode from './SvgViewerNode';
+import SkillPalette from './SkillPalette';
 import { EnhancedInputPanel } from './EnhancedInputPanel';
 import { Play, Loader, CheckCircle, AlertCircle, ChevronDown, ChevronRight, Edit2, X } from 'lucide-react';
 
@@ -76,6 +77,7 @@ export default function FlowCanvas() {
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [inputs, setInputs] = useState<Record<string, string>>({ texto: 'El cliente solicita un informe detallado del proyecto Q3' });
   const [showInputPanel, setShowInputPanel] = useState(true);
+  const [draggedSkill, setDraggedSkill] = useState<string | null>(null);
 
   const inputsArray = Object.keys(inputs).map(key => ({
     nombre: key,
@@ -93,6 +95,42 @@ export default function FlowCanvas() {
       }, eds)),
     [setEdges]
   );
+
+  const handleDragStart = (skillId: string, event: React.DragEvent) => {
+    setDraggedSkill(skillId);
+    event.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    if (!draggedSkill) return;
+
+    const reactFlowBounds = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = event.clientX - reactFlowBounds.left - 80;
+    const y = event.clientY - reactFlowBounds.top - 30;
+
+    const newNodeId = `${draggedSkill}-${Date.now()}`;
+    const newNode: Node = {
+      id: newNodeId,
+      type: 'skillNode',
+      position: { x, y },
+      data: {
+        label: draggedSkill.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+        skillId: draggedSkill,
+        status: 'idle',
+        inputs: SKILL_DEFS[draggedSkill]?.inputs || [],
+        outputs: SKILL_DEFS[draggedSkill]?.outputs || [],
+      },
+    };
+
+    setNodes(nds => [...nds, newNode]);
+    setDraggedSkill(null);
+  };
 
   const handleExecute = async () => {
     setExecuting(true);
@@ -190,7 +228,8 @@ export default function FlowCanvas() {
         </div>
 
         {/* ReactFlow */}
-        <div className="flex-1 relative w-full h-full">
+        <div className="flex-1 relative w-full h-full" onDragOver={handleDragOver} onDrop={handleDrop}>
+          <SkillPalette onDragStart={handleDragStart} />
           <ReactFlow
             nodes={nodes}
             edges={edges}
