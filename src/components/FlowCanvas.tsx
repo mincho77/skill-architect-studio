@@ -96,9 +96,12 @@ export default function FlowCanvas() {
     [setEdges]
   );
 
-  const handleDragStart = (skillId: string, event: React.DragEvent) => {
+  const handleDragStart = (skillId: string, event: React.DragEvent, nodeType?: string) => {
     setDraggedSkill(skillId);
     event.dataTransfer.effectAllowed = 'move';
+    if (nodeType) {
+      event.dataTransfer.setData('nodeType', nodeType);
+    }
   };
 
   const handleDragOver = (event: React.DragEvent) => {
@@ -110,22 +113,28 @@ export default function FlowCanvas() {
     event.preventDefault();
     if (!draggedSkill) return;
 
+    const nodeType = event.dataTransfer.getData('nodeType') || 'skillNode';
     const reactFlowBounds = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const x = event.clientX - reactFlowBounds.left - 80;
     const y = event.clientY - reactFlowBounds.top - 30;
 
     const newNodeId = `${draggedSkill}-${Date.now()}`;
+    const skillLabel = draggedSkill === 'mermaid-to-svg' ? 'SVG Viewer' :
+                       draggedSkill.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
     const newNode: Node = {
       id: newNodeId,
-      type: 'skillNode',
+      type: nodeType,
       position: { x, y },
-      data: {
-        label: draggedSkill.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-        skillId: draggedSkill,
-        status: 'idle',
-        inputs: SKILL_DEFS[draggedSkill]?.inputs || [],
-        outputs: SKILL_DEFS[draggedSkill]?.outputs || [],
-      },
+      data: nodeType === 'svgViewerNode'
+        ? { label: skillLabel, skillId: draggedSkill, status: 'idle', svg: '' }
+        : {
+            label: skillLabel,
+            skillId: draggedSkill,
+            status: 'idle',
+            inputs: SKILL_DEFS[draggedSkill]?.inputs || [],
+            outputs: SKILL_DEFS[draggedSkill]?.outputs || [],
+          },
     };
 
     setNodes(nds => [...nds, newNode]);
