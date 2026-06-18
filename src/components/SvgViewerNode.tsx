@@ -5,13 +5,45 @@ import { Handle, Position } from '@xyflow/react';
 import { ZoomIn, ZoomOut, Download, Eye } from 'lucide-react';
 
 export default function SvgViewerNode({ data }: { data: any }) {
-  const svgContainerRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const svgCode = data.svg || '';
+
+  const resetView = () => {
+    setScale(1);
+    setPanX(0);
+    setPanY(0);
+  };
+
+  const fitToView = () => {
+    if (containerRef.current) {
+      const container = containerRef.current;
+      const containerWidth = container.clientWidth - 32;
+      const containerHeight = container.clientHeight - 100;
+
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = svgCode;
+      const svg = tempDiv.querySelector('svg');
+
+      if (svg) {
+        const viewBox = svg.getAttribute('viewBox')?.split(' ').map(Number) || [0, 0, 680, 210];
+        const svgWidth = viewBox[2] - viewBox[0];
+        const svgHeight = viewBox[3] - viewBox[1];
+
+        const scaleWidth = containerWidth / svgWidth;
+        const scaleHeight = containerHeight / svgHeight;
+        const newScale = Math.min(scaleWidth, scaleHeight, 3);
+
+        setScale(newScale);
+        setPanX((containerWidth - svgWidth * newScale) / 2);
+        setPanY(20);
+      }
+    }
+  };
 
   const handleZoom = (direction: 'in' | 'out') => {
     const factor = direction === 'in' ? 1.2 : 0.8;
@@ -97,15 +129,17 @@ export default function SvgViewerNode({ data }: { data: any }) {
 
       {/* SVG Canvas */}
       <div
+        ref={containerRef}
         style={{
           background: '#0f172a',
           padding: '16px',
-          minHeight: '300px',
+          minHeight: '400px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
           position: 'relative',
+          cursor: isDragging ? 'grabbing' : 'grab',
         }}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
@@ -118,7 +152,8 @@ export default function SvgViewerNode({ data }: { data: any }) {
             style={{
               transform: `translate(${panX}px, ${panY}px) scale(${scale})`,
               transformOrigin: '0 0',
-              transition: isDragging ? 'none' : 'transform 0.1s',
+              transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+              filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))',
             }}
           >
             <div dangerouslySetInnerHTML={{ __html: svgCode }} />
@@ -130,8 +165,9 @@ export default function SvgViewerNode({ data }: { data: any }) {
               textAlign: 'center',
             }}
           >
-            <Eye size={24} style={{ margin: '0 auto 8px' }} />
-            <p style={{ fontSize: '12px' }}>No SVG data</p>
+            <Eye size={32} style={{ margin: '0 auto 12px' }} />
+            <p style={{ fontSize: '14px', fontWeight: 'bold' }}>Sin datos SVG</p>
+            <p style={{ fontSize: '12px' }}>Conecta Mermaid → SVG para visualizar</p>
           </div>
         )}
       </div>
@@ -139,8 +175,9 @@ export default function SvgViewerNode({ data }: { data: any }) {
       {/* Controls */}
       <div
         style={{
-          display: 'flex',
-          gap: '8px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '6px',
           padding: '10px 14px',
           borderTop: '1px solid #374151',
           background: '#1f2937',
@@ -149,7 +186,6 @@ export default function SvgViewerNode({ data }: { data: any }) {
         <button
           onClick={() => handleZoom('out')}
           style={{
-            flex: 1,
             padding: '6px',
             background: '#374151',
             border: 'none',
@@ -159,8 +195,8 @@ export default function SvgViewerNode({ data }: { data: any }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '4px',
-            fontSize: '12px',
+            gap: '3px',
+            fontSize: '11px',
             fontWeight: 'bold',
             transition: 'background 0.2s',
           }}
@@ -170,13 +206,14 @@ export default function SvgViewerNode({ data }: { data: any }) {
           onMouseLeave={(e) =>
             (e.currentTarget.style.background = '#374151')
           }
+          title="Zoom out"
         >
-          <ZoomOut size={12} /> Zoom Out
+          <ZoomOut size={12} /> Out
         </button>
+
         <button
           onClick={() => handleZoom('in')}
           style={{
-            flex: 1,
             padding: '6px',
             background: '#374151',
             border: 'none',
@@ -186,8 +223,8 @@ export default function SvgViewerNode({ data }: { data: any }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '4px',
-            fontSize: '12px',
+            gap: '3px',
+            fontSize: '11px',
             fontWeight: 'bold',
             transition: 'background 0.2s',
           }}
@@ -197,14 +234,72 @@ export default function SvgViewerNode({ data }: { data: any }) {
           onMouseLeave={(e) =>
             (e.currentTarget.style.background = '#374151')
           }
+          title="Zoom in"
         >
-          <ZoomIn size={12} /> Zoom In
+          <ZoomIn size={12} /> In
         </button>
+
+        <button
+          onClick={fitToView}
+          style={{
+            padding: '6px',
+            background: '#6366f1',
+            border: 'none',
+            borderRadius: '6px',
+            color: '#fff',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '3px',
+            fontSize: '11px',
+            fontWeight: 'bold',
+            transition: 'background 0.2s',
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.background = '#818cf8')
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.background = '#6366f1')
+          }
+          title="Fit to view"
+        >
+          ◇ Fit
+        </button>
+
+        <button
+          onClick={resetView}
+          style={{
+            padding: '6px',
+            background: '#374151',
+            border: 'none',
+            borderRadius: '6px',
+            color: '#e5e7eb',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '3px',
+            fontSize: '11px',
+            fontWeight: 'bold',
+            transition: 'background 0.2s',
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.background = '#4b5563')
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.background = '#374151')
+          }
+          title="Reset zoom"
+        >
+          ↺ Reset
+        </button>
+
         <button
           onClick={downloadSvg}
           style={{
-            flex: 1,
-            padding: '6px',
+            gridColumn: 'span 4',
+            padding: '8px',
             background: '#10b981',
             border: 'none',
             borderRadius: '6px',
@@ -225,7 +320,7 @@ export default function SvgViewerNode({ data }: { data: any }) {
             (e.currentTarget.style.background = '#10b981')
           }
         >
-          <Download size={12} /> SVG
+          <Download size={14} /> Download SVG
         </button>
       </div>
 
