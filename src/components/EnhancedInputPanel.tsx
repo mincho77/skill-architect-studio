@@ -90,18 +90,26 @@ export const EnhancedInputPanel: React.FC<EnhancedInputPanelProps> = ({
               </div>
             </div>
 
-            {/* Textarea con expand */}
-            <div className="bg-white border border-blue-300 rounded-lg overflow-hidden">
-              <textarea
-                value={input.valor || ''}
-                onChange={(e) => onInputChange?.(input.nombre, e.target.value)}
-                className={`w-full bg-white text-black text-sm p-3 font-mono focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 resize-none border-0 ${
-                  expandedTexts.has(input.nombre) ? 'h-64' : 'h-32'
-                } transition-all`}
-                placeholder={`Ingresa ${input.nombre}...`}
-                spellCheck="false"
+            {/* File input o text input */}
+            {input.tipo === 'File' ? (
+              <input
+                type="file"
+                onChange={(e) => onInputChange?.(input.nombre, e.target.files?.[0]?.name || '')}
+                className="w-full text-sm text-slate-600 file:mr-2 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-500 file:text-white hover:file:bg-blue-600 cursor-pointer"
               />
-            </div>
+            ) : (
+              <div className="bg-white border border-blue-300 rounded-lg overflow-hidden">
+                <textarea
+                  value={input.valor || ''}
+                  onChange={(e) => onInputChange?.(input.nombre, e.target.value)}
+                  className={`w-full bg-white text-black text-sm p-3 font-mono focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 resize-none border-0 ${
+                    expandedTexts.has(input.nombre) ? 'h-64' : 'h-32'
+                  } transition-all`}
+                  placeholder={`Ingresa ${input.nombre}...`}
+                  spellCheck="false"
+                />
+              </div>
+            )}
 
             {/* Botón expand/collapse */}
             {input.valor && (

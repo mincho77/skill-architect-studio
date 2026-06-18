@@ -134,23 +134,33 @@ export const EnhancedNodePanel: React.FC<EnhancedNodePanelProps> = ({
                   )}
                 </div>
 
-                {/* Input field expandible */}
-                {input.valor !== undefined && (
-                  <button
-                    onClick={() => toggleInputExpand(input.nombre)}
-                    className="mt-1 text-[10px] text-blue-300 hover:text-blue-200 transition-colors"
-                  >
-                    {expandedInputs.has(input.nombre) ? '▼ Colapsar' : '▶ Expandir'}
-                  </button>
-                )}
-
-                {expandedInputs.has(input.nombre) && input.valor !== undefined && (
-                  <textarea
-                    value={input.valor}
-                    onChange={(e) => onInputChange?.(input.nombre, e.target.value)}
-                    className="mt-2 w-full h-20 bg-darker border border-blue-500/30 rounded text-xs p-2 text-white font-mono resize-none focus:outline-none focus:border-blue-500"
-                    placeholder={`Ingresa ${input.nombre}...`}
+                {/* File input o text input */}
+                {input.tipo === 'File' ? (
+                  <input
+                    type="file"
+                    onChange={(e) => onInputChange?.(input.nombre, e.target.files?.[0])}
+                    className="mt-2 w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-medium file:bg-blue-500/20 file:text-blue-200 hover:file:bg-blue-500/30 cursor-pointer"
                   />
+                ) : (
+                  <>
+                    {input.valor !== undefined && (
+                      <button
+                        onClick={() => toggleInputExpand(input.nombre)}
+                        className="mt-1 text-[10px] text-blue-300 hover:text-blue-200 transition-colors"
+                      >
+                        {expandedInputs.has(input.nombre) ? '▼ Colapsar' : '▶ Expandir'}
+                      </button>
+                    )}
+
+                    {expandedInputs.has(input.nombre) && input.valor !== undefined && (
+                      <textarea
+                        value={input.valor}
+                        onChange={(e) => onInputChange?.(input.nombre, e.target.value)}
+                        className="mt-2 w-full h-20 bg-darker border border-blue-500/30 rounded text-xs p-2 text-white font-mono resize-none focus:outline-none focus:border-blue-500"
+                        placeholder={`Ingresa ${input.nombre}...`}
+                      />
+                    )}
+                  </>
                 )}
               </div>
             ))}

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus, Trash2, Wand2, Save, ArrowLeft, X } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Plus, Trash2, Wand2, Save, ArrowLeft, X, CheckCircle, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 const PORT_TYPES = ['String', 'JSON', 'Number', 'Boolean', 'File', 'Array<string>'];
@@ -21,15 +21,17 @@ interface SkillDraft {
   outputs: Port[];
 }
 
-const PortInput = ({ port, onUpdate, onRemove, isInput }: any) => (
+const PortInput = ({ port, onUpdate, onRemove, isInput, isNew }: any) => (
   <div style={{
-    background: '#1f2937',
-    border: '1px solid #374151',
+    background: isNew ? '#1f4d3b' : '#1f2937',
+    border: isNew ? '2px solid #10b981' : '1px solid #374151',
     borderRadius: '8px',
     padding: '12px',
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',
+    transition: 'all 0.3s',
+    boxShadow: isNew ? '0 0 12px rgba(16, 185, 129, 0.2)' : 'none',
   }}>
     <div style={{ display: 'flex', gap: '6px' }}>
       <input
@@ -107,7 +109,12 @@ export default function SkillBuilder() {
 
   const [aiSuggestions, setAiSuggestions] = useState<SkillDraft | null>(null);
   const [loadingAI, setLoadingAI] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [refinementPrompt, setRefinementPrompt] = useState('');
+  const [newPortIds, setNewPortIds] = useState<Set<string>>(new Set());
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const inputsRef = React.useRef<HTMLDivElement>(null);
+  const outputsRef = React.useRef<HTMLDivElement>(null);
 
   const handleAddInput = () => {
     setSkill(prev => ({
@@ -189,27 +196,100 @@ export default function SkillBuilder() {
   const applyAISuggestions = () => {
     if (aiSuggestions) {
       setSkill(aiSuggestions);
+      setNewPortIds(new Set([
+        ...aiSuggestions.inputs.map(i => i.id),
+        ...aiSuggestions.outputs.map(o => o.id),
+      ]));
       setAiSuggestions(null);
+      setMessage({ type: 'success', text: 'Sugerencias aplicadas' });
+      setTimeout(() => setMessage(null), 3000);
+
+      setTimeout(() => {
+        inputsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!skill.nombre.trim()) {
+      setMessage({ type: 'error', text: 'Nombre del skill requerido' });
+      setTimeout(() => setMessage(null), 3000);
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch('/api/skills/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skill }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessage({ type: 'success', text: `Skill guardado en skill_db/skills/${data.folderName}/` });
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Error al guardar' });
+      }
+    } catch (e) {
+      setMessage({ type: 'error', text: 'Error de conexión' });
+    } finally {
+      setSaving(false);
+      setTimeout(() => setMessage(null), 4000);
     }
   };
 
   const mergeAISuggestions = () => {
     if (aiSuggestions) {
+      const newInputs = aiSuggestions.inputs.filter(
+        ai => !skill.inputs.some(p => p.nombre === ai.nombre)
+      );
+      const newOutputs = aiSuggestions.outputs.filter(
+        ai => !skill.outputs.some(p => p.nombre === ai.nombre)
+      );
+
       setSkill(prev => ({
         ...prev,
-        inputs: [...prev.inputs, ...aiSuggestions.inputs.filter(
-          ai => !prev.inputs.some(p => p.nombre === ai.nombre)
-        )],
-        outputs: [...prev.outputs, ...aiSuggestions.outputs.filter(
-          ai => !prev.outputs.some(p => p.nombre === ai.nombre)
-        )],
+        inputs: [...prev.inputs, ...newInputs],
+        outputs: [...prev.outputs, ...newOutputs],
       }));
+
+      setNewPortIds(new Set([
+        ...newInputs.map(i => i.id),
+        ...newOutputs.map(o => o.id),
+      ]));
+
       setAiSuggestions(null);
+      setMessage({ type: 'success', text: `Agregados ${newInputs.length} inputs y ${newOutputs.length} outputs` });
+      setTimeout(() => setMessage(null), 3000);
+
+      setTimeout(() => {
+        inputsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   };
 
   return (
     <div style={{ background: '#0f172a', minHeight: '100vh', color: '#e5e7eb' }}>
+      {/* Toast Message */}
+      {message && (
+        <div style={{
+          position: 'fixed',
+          top: '24px',
+          right: '24px',
+          background: message.type === 'success' ? '#10b981' : '#ef4444',
+          color: 'white',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          zIndex: 1000,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+        }}>
+          <CheckCircle size={16} />
+          {message.text}
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ background: '#111827', borderBottom: '1px solid #374151', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -230,14 +310,14 @@ export default function SkillBuilder() {
       <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr 280px', gap: '24px', padding: '24px', maxWidth: '1600px', margin: '0 auto' }}>
 
         {/* Left: Inputs */}
-        <div>
+        <div ref={inputsRef}>
           <div style={{ marginBottom: '16px' }}>
             <h3 style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: 'bold', color: '#10b981', textTransform: 'uppercase' }}>Entradas</h3>
             <p style={{ margin: 0, fontSize: '11px', color: '#6b7280' }}>{skill.inputs.length} puerto{skill.inputs.length !== 1 ? 's' : ''}</p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
             {skill.inputs.map((inp) => (
-              <PortInput key={inp.id} port={inp} onUpdate={handleUpdateInput} onRemove={handleRemoveInput} isInput={true} />
+              <PortInput key={inp.id} port={inp} onUpdate={handleUpdateInput} onRemove={handleRemoveInput} isInput={true} isNew={newPortIds.has(inp.id)} />
             ))}
           </div>
           <button
@@ -345,7 +425,7 @@ export default function SkillBuilder() {
             {/* AI Suggestions */}
             {aiSuggestions && (
               <div style={{ background: '#1f2937', border: '1px solid #6366f1', borderRadius: '8px', padding: '12px' }}>
-                <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#6366f1' }}>✨ Sugerencias</div>
+                <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#6366f1', display: 'flex', alignItems: 'center', gap: '6px' }}><Sparkles size={14} /> Sugerencias</div>
                 <div style={{ fontSize: '11px', marginBottom: '8px', color: '#d1d5db' }}>
                   <strong>Inputs:</strong> {aiSuggestions.inputs.map(i => `${i.nombre}`).join(', ')}
                 </div>
@@ -430,13 +510,15 @@ export default function SkillBuilder() {
 
             {/* Guardar */}
             <button
+              onClick={handleSave}
+              disabled={saving}
               style={{
                 width: '100%',
-                background: '#10b981',
+                background: saving ? '#065f46' : '#10b981',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '12px',
-                cursor: 'pointer',
+                cursor: saving ? 'not-allowed' : 'pointer',
                 color: 'white',
                 fontSize: '13px',
                 fontWeight: 'bold',
@@ -444,10 +526,23 @@ export default function SkillBuilder() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '6px',
+                opacity: saving ? 0.7 : 1,
               }}
             >
-              <Save size={16} /> Guardar Skill
+              <Save size={16} /> {saving ? 'Guardando...' : 'Guardar Skill'}
             </button>
+
+            {/* Estructura generada */}
+            <div style={{ background: '#0f172a', border: '1px solid #1f2937', borderRadius: '8px', padding: '12px', fontFamily: 'monospace', fontSize: '11px', color: '#6b7280' }}>
+              <div style={{ color: '#94a3b8', marginBottom: '6px', fontSize: '10px', fontWeight: 'bold' }}>ESTRUCTURA GENERADA</div>
+              <div style={{ color: '#fbbf24' }}>{skill.nombre ? skill.nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'mi-skill'}/</div>
+              <div style={{ paddingLeft: '12px' }}>
+                <div>├── <span style={{ color: '#10b981' }}>SKILL.md</span> <span style={{ color: '#374151' }}># el cerebro del skill</span></div>
+                <div>├── <span style={{ color: '#6366f1' }}>reference/</span> <span style={{ color: '#374151' }}># conocimiento de apoyo</span></div>
+                <div>├── <span style={{ color: '#f97316' }}>scripts/</span> <span style={{ color: '#374151' }}># código ejecutable</span></div>
+                <div>└── <span style={{ color: '#8b5cf6' }}>assets/</span> <span style={{ color: '#374151' }}># fuentes, íconos, plantillas</span></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -459,7 +554,7 @@ export default function SkillBuilder() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
             {skill.outputs.map((out) => (
-              <PortInput key={out.id} port={out} onUpdate={handleUpdateOutput} onRemove={handleRemoveOutput} isInput={false} />
+              <PortInput key={out.id} port={out} onUpdate={handleUpdateOutput} onRemove={handleRemoveOutput} isInput={false} isNew={newPortIds.has(out.id)} />
             ))}
           </div>
           <button

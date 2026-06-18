@@ -1,0 +1,68 @@
+{
+  "id": "SKL-IMAGE-TO-SVG",
+  "name": "Image To SVG",
+  "version": "1.0.0",
+  "description": "Convierte una imagen raster (PNG, JPG, WEBP) a SVG vectorial usando análisis visual y trazado de contornos.",
+  "category": "design",
+  "dominio": "diseño",
+  "tags": ["image", "svg", "vectorize", "convert", "raster"],
+  "status": "Publicado",
+  "created_at": "2026-06-18",
+  "inputs": [
+    {
+      "nombre": "image",
+      "tipo": "File",
+      "formato": "image/png,image/jpeg,image/webp",
+      "requerido": true,
+      "descripcion": "Imagen de entrada en formato PNG, JPG o WEBP"
+    },
+    {
+      "nombre": "mode",
+      "tipo": "String",
+      "requerido": false,
+      "default": "auto",
+      "opciones": ["auto", "trace", "outline"],
+      "descripcion": "Modo de vectorización"
+    },
+    {
+      "nombre": "simplify",
+      "tipo": "Number",
+      "requerido": false,
+      "default": 50,
+      "rango": "0-100",
+      "descripcion": "Nivel de simplificación de curvas"
+    }
+  ],
+  "outputs": [
+    {
+      "nombre": "svg",
+      "tipo": "String",
+      "descripcion": "Código SVG vectorial resultante"
+    },
+    {
+      "nombre": "width",
+      "tipo": "Number",
+      "descripcion": "Ancho original en píxeles"
+    },
+    {
+      "nombre": "height",
+      "tipo": "Number",
+      "descripcion": "Alto original en píxeles"
+    },
+    {
+      "nombre": "size_bytes",
+      "tipo": "Number",
+      "descripcion": "Tamaño del SVG generado en bytes"
+    }
+  ],
+  "stack": ["Sharp", "potrace", "svgo"],
+  "dependencias": [],
+  "metricas_exito": {
+    "tiempo_maximo_seg": 15,
+    "calidad_minima": 0.8
+  },
+  "esfuerzo_desarrollo": "3 días",
+  "reutilizacion": "Alta",
+  "schema_version": "2.0",
+  "ejecucion_aprobada": false
+}

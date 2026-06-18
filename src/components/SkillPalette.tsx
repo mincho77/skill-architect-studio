@@ -19,6 +19,14 @@ const MonkeyBarsIcon = () => (
 
 const AVAILABLE_SKILLS = [
   {
+    id: 'input-node',
+    label: 'Input',
+    icon: '📥',
+    nodeType: 'inputNode',
+    inputs: [],
+    outputs: [{ nombre: 'value', tipo: 'String' }],
+  },
+  {
     id: 'text-to-workflow',
     label: 'Text → Workflow',
     icon: '📝',
@@ -35,11 +43,27 @@ const AVAILABLE_SKILLS = [
     outputs: [{ nombre: 'mermaid', tipo: 'String' }],
   },
   {
-    id: 'mermaid-to-svg',
+    id: 'mermaid-to-svg-gen',
+    label: 'Mermaid → SVG',
+    icon: '🔧',
+    nodeType: 'skillNode',
+    inputs: [{ nombre: 'mermaid', tipo: 'String' }],
+    outputs: [{ nombre: 'svg', tipo: 'String' }],
+  },
+  {
+    id: 'image-to-svg',
+    label: 'Image → SVG',
+    icon: '🖼️',
+    nodeType: 'skillNode',
+    inputs: [{ nombre: 'image', tipo: 'File' }],
+    outputs: [{ nombre: 'svg', tipo: 'String' }],
+  },
+  {
+    id: 'svg-viewer',
     label: 'SVG Viewer',
     icon: 'monkey',
     nodeType: 'svgViewerNode',
-    inputs: [{ nombre: 'mermaid', tipo: 'String' }],
+    inputs: [{ nombre: 'svg', tipo: 'String' }],
     outputs: [{ nombre: 'svg', tipo: 'String' }],
   },
 ];

@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+function extractValue(input: any, keys: string[]): any {
+  if (typeof input === 'string' || typeof input === 'number') return input;
+  if (input && typeof input === 'object') {
+    for (const k of keys) {
+      if (input[k] !== undefined) return input[k];
+    }
+    const vals = Object.values(input);
+    if (vals.length === 1) return vals[0];
+  }
+  return input;
+}
+
 const MOCK_OUTPUTS: Record<string, (input: any) => any> = {
-  'text-to-workflow': (input: string) => {
-    const text = (input || '').trim();
+  'text-to-workflow': (input: any) => {
+    const raw = extractValue(input, ['texto', 'text', 'value', 'input']);
+    const text = String(raw || '').trim();
     const sentences = text.split(/[.!?]+/).filter(s => s.trim());
     const pasos = sentences.slice(0, 3).map((sent, idx) => {
       const trimmed = sent.trim();
@@ -32,7 +45,8 @@ const MOCK_OUTPUTS: Record<string, (input: any) => any> = {
     };
   },
   'workflow-to-mermaid': (input: any) => {
-    const steps = input.workflow?.pasos || [];
+    const workflowData = extractValue(input, ['workflow', 'value', 'input']);
+    const steps = workflowData?.pasos || workflowData?.steps || [];
     const mermaidLines = ['graph TD'];
     steps.forEach((paso: any, idx: number) => {
       mermaidLines.push(`    A${idx}["${paso.titulo}"]`);
@@ -42,8 +56,34 @@ const MOCK_OUTPUTS: Record<string, (input: any) => any> = {
       mermaid: mermaidLines.join('\n'),
     };
   },
+  'image-to-svg': async (input: any) => {
+    const imageData = input.image || input.value;
+    // If base64 available, call real LLM route
+    if (imageData?.base64) {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3004'}/api/execute/image-to-svg`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imageData }),
+      });
+      const data = await res.json();
+      if (data.svg) return { svg: data.svg };
+    }
+    // Fallback placeholder
+    const name = imageData?.name || String(imageData || 'imagen');
+    return {
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+      <rect width="400" height="300" fill="#0f172a" rx="12"/>
+      <text x="200" y="130" text-anchor="middle" font-family="monospace" font-size="12" fill="#38bdf8">${name}</text>
+      <text x="200" y="160" text-anchor="middle" font-family="Arial" font-size="11" fill="#ef4444">Sin base64 — selecciona archivo en InputNode</text>
+    </svg>`
+    };
+  },
+  'svg-viewer': (input: any) => {
+    return { svg: input.svg || input.value || '' };
+  },
   'mermaid-to-svg': (input: any) => {
-    const mermaidCode = (input.mermaid || 'graph TD\n    A["Sin datos"]').trim();
+    const raw = extractValue(input, ['mermaid', 'value', 'input']);
+    const mermaidCode = (typeof raw === 'string' ? raw : 'graph TD\n    A["Sin datos"]').trim();
 
     // Parsear nodos y edges del mermaid
     const lines = mermaidCode.split('\n').slice(1); // skip "graph TD"
@@ -125,7 +165,7 @@ export async function POST(req: NextRequest) {
 
       if (mockFn) {
         try {
-          output = mockFn(currentData);
+          output = await Promise.resolve(mockFn(currentData));
         } catch (e) {
           status = 'error';
           output = { error: (e as Error).message };

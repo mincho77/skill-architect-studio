@@ -1,12 +1,27 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { Brain, Package, Zap, Play } from 'lucide-react';
+import { Brain, Package, Play } from 'lucide-react';
+
+const MonkeyBarsIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="2" y1="4" x2="22" y2="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    <line x1="4" y1="4" x2="4" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <line x1="10" y1="4" x2="10" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <line x1="16" y1="4" x2="16" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <line x1="22" y1="4" x2="22" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <ellipse cx="13" cy="17" rx="3" ry="3.5" fill="currentColor"/>
+    <circle cx="13" cy="11.5" r="2.5" fill="currentColor"/>
+    <circle cx="10.5" cy="11" r="1" fill="currentColor"/>
+    <circle cx="15.5" cy="11" r="1" fill="currentColor"/>
+    <line x1="10" y1="9" x2="13" y2="9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+  </svg>
+);
 
 const NAV_ITEMS = [
   { icon: Brain, label: 'Arquitecto IA', href: '/architect', short: 'AI' },
   { icon: Package, label: 'Skill Catalog', href: '/skills', short: 'SKL' },
-  { icon: Zap, label: 'Flow Canvas', href: '/', short: 'FLW' },
+  { icon: MonkeyBarsIcon, label: 'Flow Canvas', href: '/', short: 'FLW', isCustom: true },
   { icon: Play, label: 'Ejecución', href: '/executions', short: 'EXE' },
 ];
 
