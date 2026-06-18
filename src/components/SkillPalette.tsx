@@ -1,6 +1,7 @@
 'use client';
 
-import { Package, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Package, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const AVAILABLE_SKILLS = [
   {
@@ -31,22 +32,50 @@ interface SkillPaletteProps {
 }
 
 export default function SkillPalette({ onDragStart }: SkillPaletteProps) {
+  const [isOpen, setIsOpen] = useState(true);
+
   return (
-    <div
-      style={{
-        position: 'absolute',
-        left: '16px',
-        top: '70px',
-        width: '220px',
-        background: '#111827',
-        border: '1px solid #374151',
-        borderRadius: '12px',
-        padding: '12px',
-        zIndex: 100,
-        maxHeight: 'calc(100vh - 100px)',
-        overflowY: 'auto',
-      }}
-    >
+    <>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          position: 'absolute',
+          left: '16px',
+          top: '70px',
+          width: '32px',
+          height: '32px',
+          background: '#374151',
+          border: '1px solid #4b5563',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#e5e7eb',
+          zIndex: 101,
+        }}
+        title={isOpen ? 'Cerrar paleta' : 'Abrir paleta'}
+      >
+        {isOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+      </button>
+
+      {isOpen && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '60px',
+            top: '70px',
+            width: '220px',
+            background: '#111827',
+            border: '1px solid #374151',
+            borderRadius: '12px',
+            padding: '12px',
+            zIndex: 100,
+            maxHeight: 'calc(100vh - 100px)',
+            overflowY: 'auto',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
+          }}
+        >
       <div
         style={{
           display: 'flex',
@@ -96,5 +125,7 @@ export default function SkillPalette({ onDragStart }: SkillPaletteProps) {
         ))}
       </div>
     </div>
+      )}
+    </>
   );
 }
