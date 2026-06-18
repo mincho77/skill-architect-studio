@@ -27,6 +27,8 @@ logs/
 
 # Secrets
 *.env
+.env.local
+.env*.local
 secrets.json
 
 # FASE 0+ — secretos y uploads NO deben versionarse
