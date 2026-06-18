@@ -233,6 +233,7 @@ export default function SvgViewerNode({ data }: { data: any }) {
       <Handle
         type="source"
         position={Position.Right}
+        id="out-svg"
         style={{
           background: '#10b981',
           width: 10,
