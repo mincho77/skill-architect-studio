@@ -229,6 +229,18 @@ export default function SvgViewerNode({ data }: { data: any }) {
         </button>
       </div>
 
+      {/* Input Handle */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        style={{
+          background: '#10b981',
+          width: 10,
+          height: 10,
+          border: '2px solid #111827',
+        }}
+      />
+
       {/* Output Handle */}
       <Handle
         type="source"

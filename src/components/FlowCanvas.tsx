@@ -64,7 +64,7 @@ const INITIAL_NODES: Node[] = [
 const INITIAL_EDGES: Edge[] = [
   { id: 'e0-1', source: '0', sourceHandle: 'input-texto', target: '1', targetHandle: 'in-texto', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
   { id: 'e1-2', source: '1', sourceHandle: 'out-workflow', target: '2', targetHandle: 'in-workflow', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#9333ea', strokeWidth: 2 } },
-  { id: 'e2-3', source: '2', sourceHandle: 'out-mermaid', target: '3', targetHandle: 'out-svg', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#10b981', strokeWidth: 2 } },
+  { id: 'e2-3', source: '2', sourceHandle: 'out-mermaid', target: '3', animated: false, markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#10b981', strokeWidth: 2 } },
 ];
 
 export default function FlowCanvas() {
